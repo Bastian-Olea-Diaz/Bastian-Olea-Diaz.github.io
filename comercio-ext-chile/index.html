@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comercio exterior de Chile — Bastián Olea Díaz</title>
+<meta name="description" content="Cómo desarrollé un proyecto de Data Science con 15,6 millones de registros de exportaciones e importaciones de Aduanas de Chile: los datos, las decisiones, los resultados y lo que aprendí.">
+<meta name="theme-color" content="#F6F2E9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='11' cy='19' r='7' fill='%232D4B6E' fill-opacity='.85'/%3E%3Ccircle cx='21' cy='12' r='6' fill='%23C38A3A' fill-opacity='.85'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&amp;family=Geist+Mono:wght@400;500&amp;family=Instrument+Serif:ital@0;1&amp;display=swap">
+<link rel="stylesheet" href="../css/style.css?v=21564027">
+<link rel="stylesheet" href="../css/proyecto.css?v=320dd128">
+<script>document.documentElement.classList.add('js')</script>
+<script src="../js/main.js?v=d65a6def" defer></script>
+<script src="../js/relato.js?v=7da70a27" defer></script>
+</head>
+<body>
+<main class="page story">
+
+<svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+<defs>
+<filter id="wcA" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="4" seed="7" result="warp"></feTurbulence>
+<feDisplacementMap in="SourceGraphic" in2="warp" scale="46" xChannelSelector="R" yChannelSelector="G" result="shape"></feDisplacementMap>
+<feGaussianBlur in="shape" stdDeviation="1.4" result="soft"></feGaussianBlur>
+<feMorphology in="soft" operator="erode" radius="5" result="core"></feMorphology>
+<feGaussianBlur in="core" stdDeviation="7" result="coreBlur"></feGaussianBlur>
+<feComposite in="soft" in2="coreBlur" operator="out" result="rim"></feComposite>
+<feTurbulence type="fractalNoise" baseFrequency="0.62" numOctaves="2" seed="3" result="grain"></feTurbulence>
+<feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.25" result="grainA"></feColorMatrix>
+<feComposite in="soft" in2="grainA" operator="in" result="grained"></feComposite>
+<feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="11" result="bloom"></feTurbulence>
+<feColorMatrix in="bloom" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.7" result="bloomA"></feColorMatrix>
+<feComposite in="grained" in2="bloomA" operator="in" result="bloomed"></feComposite>
+<feMerge><feMergeNode in="bloomed"></feMergeNode><feMergeNode in="rim"></feMergeNode></feMerge>
+</filter>
+<filter id="wcB" x="-20%" y="-30%" width="140%" height="160%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.008 0.02" numOctaves="4" seed="21" result="warp"></feTurbulence>
+<feDisplacementMap in="SourceGraphic" in2="warp" scale="30" xChannelSelector="R" yChannelSelector="G" result="shape"></feDisplacementMap>
+<feGaussianBlur in="shape" stdDeviation="1.2" result="soft"></feGaussianBlur>
+<feMorphology in="soft" operator="erode" radius="4" result="core"></feMorphology>
+<feGaussianBlur in="core" stdDeviation="6" result="coreBlur"></feGaussianBlur>
+<feComposite in="soft" in2="coreBlur" operator="out" result="rim"></feComposite>
+<feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="5" result="grain"></feTurbulence>
+<feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.2" result="grainA"></feColorMatrix>
+<feComposite in="soft" in2="grainA" operator="in" result="grained"></feComposite>
+<feMerge><feMergeNode in="grained"></feMergeNode><feMergeNode in="rim"></feMergeNode></feMerge>
+</filter>
+<filter id="wcC" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+
+<feDisplacementMap in="SourceGraphic" in2="warp" scale="18" xChannelSelector="R" yChannelSelector="G" result="shape"></feDisplacementMap>
+<feGaussianBlur in="shape" stdDeviation="1" result="soft"></feGaussianBlur>
+<feMorphology in="soft" operator="erode" radius="3" result="core"></feMorphology>
+<feGaussianBlur in="core" stdDeviation="4" result="coreBlur"></feGaussianBlur>
+<feComposite in="soft" in2="coreBlur" operator="out" result="rim"></feComposite>
+<feTurbulence type="fractalNoise" baseFrequency="0.66" numOctaves="2" seed="9" result="grain"></feTurbulence>
+<feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.2" result="grainA"></feColorMatrix>
+<feComposite in="soft" in2="grainA" operator="in" result="grained"></feComposite>
+<feMerge><feMergeNode in="grained"></feMergeNode><feMergeNode in="rim"></feMergeNode></feMerge>
+</filter>
+<filter id="wcS" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="13" result="warp"></feTurbulence>
+<feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"></feDisplacementMap>
+<feGaussianBlur in="shape" stdDeviation=".4"></feGaussianBlur>
+</filter>
+<filter id="paper" x="0" y="0" width="100%" height="100%">
+<feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="2" stitchTiles="stitch" result="fine"></feTurbulence>
+<feColorMatrix in="fine" type="matrix" values="0 0 0 0 .36  0 0 0 0 .31  0 0 0 0 .24  0 0 0 -1.4 .78" result="fineA"></feColorMatrix>
+<feTurbulence type="fractalNoise" baseFrequency=".006" numOctaves="2" seed="17" result="mottle"></feTurbulence>
+<feColorMatrix in="mottle" type="matrix" values="0 0 0 0 .55  0 0 0 0 .45  0 0 0 0 .3  0 0 0 -.6 .36" result="mottleA"></feColorMatrix>
+<feMerge><feMergeNode in="mottleA"></feMergeNode><feMergeNode in="fineA"></feMergeNode></feMerge>
+</filter>
+<filter id="wcN" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="15" result="warp"></feTurbulence>
+<feDisplacementMap in="SourceGraphic" in2="warp" scale="4" xChannelSelector="R" yChannelSelector="G" result="shape"></feDisplacementMap>
+<feGaussianBlur in="shape" stdDeviation=".35" result="soft"></feGaussianBlur>
+<feMorphology in="soft" operator="erode" radius="1" result="core"></feMorphology>
+<feGaussianBlur in="core" stdDeviation="1.6" result="coreBlur"></feGaussianBlur>
+<feComposite in="soft" in2="coreBlur" operator="out" result="rim"></feComposite>
+<feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="6" result="grain"></feTurbulence>
+<feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.2" result="grainA"></feColorMatrix>
+<feComposite in="soft" in2="grainA" operator="in" result="grained"></feComposite>
+<feMerge><feMergeNode in="grained"></feMergeNode><feMergeNode in="rim"></feMergeNode></feMerge>
+</filter>
+<radialGradient id="gV" cx="42%" cy="40%" r="62%">
+<stop offset="0" stop-color="#3F7C74" stop-opacity=".34"></stop>
+<stop offset=".55" stop-color="#3F7C74" stop-opacity=".2"></stop>
+<stop offset=".9" stop-color="#2F6B66" stop-opacity=".42"></stop>
+<stop offset="1" stop-color="#2F6B66" stop-opacity=".52"></stop>
+</radialGradient>
+<radialGradient id="gP" cx="58%" cy="46%" r="64%">
+<stop offset="0" stop-color="#2D4B6E" stop-opacity=".2"></stop>
+<stop offset=".6" stop-color="#2D4B6E" stop-opacity=".12"></stop>
+<stop offset=".92" stop-color="#28425F" stop-opacity=".26"></stop>
+<stop offset="1" stop-color="#28425F" stop-opacity=".34"></stop>
+</radialGradient>
+<radialGradient id="gO" cx="40%" cy="44%" r="64%">
+<stop offset="0" stop-color="#C38A3A" stop-opacity=".42"></stop>
+<stop offset=".6" stop-color="#C9954A" stop-opacity=".26"></stop>
+<stop offset=".92" stop-color="#B07A2E" stop-opacity=".5"></stop>
+<stop offset="1" stop-color="#B07A2E" stop-opacity=".6"></stop>
+</radialGradient>
+<radialGradient id="gM" cx="50%" cy="38%" r="64%">
+<stop offset="0" stop-color="#B4566B" stop-opacity=".3"></stop>
+<stop offset=".6" stop-color="#B4566B" stop-opacity=".16"></stop>
+<stop offset=".92" stop-color="#9E4A5D" stop-opacity=".34"></stop>
+<stop offset="1" stop-color="#9E4A5D" stop-opacity=".42"></stop>
+</radialGradient>
+<linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#2D4B6E" stop-opacity=".36"></stop>
+<stop offset=".5" stop-color="#3F7C74" stop-opacity=".18"></stop>
+<stop offset="1" stop-color="#3F7C74" stop-opacity=".04"></stop>
+</linearGradient>
+<linearGradient id="gFade" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#fff" stop-opacity="1"></stop>
+<stop offset=".6" stop-color="#fff" stop-opacity="1"></stop>
+<stop offset=".86" stop-color="#fff" stop-opacity=".4"></stop>
+<stop offset="1" stop-color="#fff" stop-opacity=".15"></stop>
+</linearGradient>
+<filter id="wcD" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="4" seed="7" result="warp"></feTurbulence>
+<feDisplacementMap in="SourceGraphic" in2="warp" scale="46" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+</filter>
+<radialGradient id="gCloud" cx="40%" cy="45%" r="65%">
+<stop offset="0" stop-color="#6F8298" stop-opacity=".14"></stop>
+<stop offset=".55" stop-color="#6F8298" stop-opacity=".09"></stop>
+<stop offset=".9" stop-color="#5A6F88" stop-opacity=".26"></stop>
+<stop offset="1" stop-color="#5A6F88" stop-opacity=".34"></stop>
+</radialGradient>
+<radialGradient id="gCloudW" cx="45%" cy="40%" r="65%">
+<stop offset="0" stop-color="#C9954A" stop-opacity=".22"></stop>
+<stop offset=".6" stop-color="#C9954A" stop-opacity=".12"></stop>
+<stop offset=".92" stop-color="#B07A2E" stop-opacity=".26"></stop>
+<stop offset="1" stop-color="#B07A2E" stop-opacity=".32"></stop>
+</radialGradient>
+<linearGradient id="gsO" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C38A3A" stop-opacity=".85"></stop><stop offset=".7" stop-color="#C38A3A" stop-opacity=".62"></stop><stop offset="1" stop-color="#C38A3A" stop-opacity=".3"></stop></linearGradient>
+<linearGradient id="gsV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3F7C74" stop-opacity=".72"></stop><stop offset=".7" stop-color="#3F7C74" stop-opacity=".52"></stop><stop offset="1" stop-color="#3F7C74" stop-opacity=".24"></stop></linearGradient>
+<linearGradient id="gsM" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B4566B" stop-opacity=".7"></stop><stop offset=".7" stop-color="#B4566B" stop-opacity=".5"></stop><stop offset="1" stop-color="#B4566B" stop-opacity=".24"></stop></linearGradient>
+<linearGradient id="gsP" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2D4B6E" stop-opacity=".6"></stop><stop offset=".7" stop-color="#2D4B6E" stop-opacity=".42"></stop><stop offset="1" stop-color="#2D4B6E" stop-opacity=".2"></stop></linearGradient>
+<mask id="mFade" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="200">
+<rect x="0" y="0" width="300" height="200" fill="url(#gFade)"></rect>
+</mask>
+<radialGradient id="gCu" cx="40%" cy="40%" r="65%">
+<stop offset="0" stop-color="#D08548" stop-opacity=".55"></stop>
+<stop offset=".6" stop-color="#C0703A" stop-opacity=".36"></stop>
+<stop offset=".92" stop-color="#9C5426" stop-opacity=".58"></stop>
+<stop offset="1" stop-color="#9C5426" stop-opacity=".7"></stop>
+</radialGradient>
+<radialGradient id="gR" cx="38%" cy="36%" r="66%">
+<stop offset="0" stop-color="#B23A48" stop-opacity=".58"></stop>
+<stop offset=".6" stop-color="#B23A48" stop-opacity=".4"></stop>
+<stop offset=".92" stop-color="#8E2836" stop-opacity=".68"></stop>
+<stop offset="1" stop-color="#8E2836" stop-opacity=".78"></stop>
+</radialGradient>
+<radialGradient id="gW" cx="50%" cy="38%" r="64%">
+<stop offset="0" stop-color="#8C3352" stop-opacity=".58"></stop>
+<stop offset=".6" stop-color="#8C3352" stop-opacity=".42"></stop>
+<stop offset=".92" stop-color="#6E2440" stop-opacity=".68"></stop>
+<stop offset="1" stop-color="#6E2440" stop-opacity=".78"></stop>
+</radialGradient>
+<radialGradient id="gG" cx="40%" cy="38%" r="64%">
+<stop offset="0" stop-color="#5E4478" stop-opacity=".5"></stop>
+<stop offset=".6" stop-color="#5E4478" stop-opacity=".32"></stop>
+<stop offset=".92" stop-color="#4A3363" stop-opacity=".6"></stop>
+<stop offset="1" stop-color="#4A3363" stop-opacity=".7"></stop>
+</radialGradient>
+<radialGradient id="gS" cx="40%" cy="44%" r="64%">
+<stop offset="0" stop-color="#E08A66" stop-opacity=".55"></stop>
+<stop offset=".6" stop-color="#E08A66" stop-opacity=".34"></stop>
+<stop offset=".92" stop-color="#C56A4A" stop-opacity=".6"></stop>
+<stop offset="1" stop-color="#C56A4A" stop-opacity=".7"></stop>
+</radialGradient>
+</defs>
+</svg>
+
+<svg class="paper" aria-hidden="true" focusable="false"><rect width="100%" height="100%" filter="url(#paper)"></rect></svg>
+
+<div class="series rvg">
+<div class="series-hit"><div class="tip"><span class="tip-t"><span class="tip-dot" style="background: #2D4B6E"></span>Serie temporal</span><span class="tip-d">Las series temporales sirven para analizar cómo evoluciona una variable en el tiempo y proyectar pronósticos.</span></div></div>
+<svg viewBox="0 0 1440 180" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+<g class="series-wash fade" style="animation-delay: 1.6s; animation-duration: 3s">
+<g style="opacity: 0.85">
+<polygon filter="url(#wcB)" fill="url(#gArea)" points="0,130 40,137 80,135 120,140 160,134 200,136 240,123 280,120 320,105 360,102 400,93 440,95 480,92 520,98 560,98 600,108 640,108 680,114 720,107 760,106 800,96 840,92 880,78 920,75 960,64 1000,66 1040,63 1080,70 1120,70 1160,79 1200,78 1240,85 1240,210 0,210"></polygon>
+<polygon filter="url(#wcC)" fill="url(#gO)" points="1240,85 1440,20 1440,88"></polygon>
+</g>
+</g>
+<path d="M60 172v8M180 172v8M300 172v8M420 172v8M540 172v8M660 172v8M780 172v8M900 172v8M1020 172v8M1140 172v8M1260 172v8M1380 172v8" stroke="#1B1E23" stroke-opacity=".28" stroke-width="1" class="fade" style="animation-delay: 1.2s"></path>
+<polyline class="draw" style="animation-delay: 1.3s; animation-duration: 3.2s" pathLength="1" fill="none" stroke="#2D4B6E" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="0,130 40,137 80,135 120,140 160,134 200,136 240,123 280,120 320,105 360,102 400,93 440,95 480,92 520,98 560,98 600,108 640,108 680,114 720,107 760,106 800,96 840,92 880,78 920,75 960,64 1000,66 1040,63 1080,70 1120,70 1160,79 1200,78 1240,85"></polyline>
+<polyline class="fade" style="animation-delay: 3.8s" fill="none" stroke="#2D4B6E" stroke-width="1.4" stroke-dasharray="3 5" stroke-linecap="round" points="1240,85 1280,80 1320,79 1360,68 1400,64 1440,52"></polyline>
+<circle class="fade" style="animation-delay: 3.6s" cx="1240" cy="85" r="4.5" fill="#F6F2E9" stroke="#2D4B6E" stroke-width="1.6"></circle>
+</svg>
+
+<div aria-hidden="true" class="nat n-algae" style="animation-delay: 3s">
+<svg viewBox="0 0 100 140" focusable="false" style="opacity: 0.85">
+<g class="kelp">
+<path filter="url(#wcN)" fill="url(#gV)" d="M38 140 C30 120 46 104 36 86 C28 70 42 54 32 36 C28 28 30 22 30 18 C36 24 38 32 40 38 C48 56 36 72 44 88 C52 106 40 122 46 140 Z"></path>
+<path fill="none" stroke="#2F6B66" stroke-opacity=".55" stroke-width=".8" stroke-linecap="round" d="M42 140 C36 122 46 106 40 88 C34 70 42 54 34 30"></path>
+</g>
+<g class="kelp kelp2">
+<path filter="url(#wcN)" fill="url(#gP)" d="M56 140 C64 124 52 110 60 94 C66 80 58 66 68 52 C70 49 72 47 73 46 C74 52 74 56 72 60 C66 72 74 84 68 98 C62 112 72 126 64 140 Z"></path>
+<path fill="none" stroke="#28425F" stroke-opacity=".5" stroke-width=".8" stroke-linecap="round" d="M60 140 C67 124 56 110 64 96 C70 82 64 66 72 50"></path>
+</g>
+<g class="kelp kelp3">
+<path filter="url(#wcN)" fill="url(#gO)" d="M48 140 C52 128 46 116 50 104 C52 98 52 94 54 90 C56 96 56 100 56 104 C54 116 58 128 54 140 Z"></path>
+<path fill="none" stroke="#8F5E1E" stroke-opacity=".5" stroke-width=".7" stroke-linecap="round" d="M51 140 C54 128 49 116 53 104 C54 98 54 95 54 92"></path>
+</g>
+<g fill="none" stroke="#2D4B6E" stroke-opacity=".45" stroke-width=".7">
+<circle class="bub" cx="34" cy="14" r="2"></circle>
+<circle class="bub" style="animation-delay: 2.3s" cx="40" cy="8" r="1.3"></circle>
+<circle class="bub" style="animation-delay: 4.6s" cx="74" cy="40" r="1.6"></circle>
+</g>
+</svg>
+</div>
+
+<div aria-hidden="true" class="nat n-algae2 flip" style="animation-delay: 3.3s">
+<svg viewBox="0 0 100 140" focusable="false" style="opacity: 0.85">
+<g class="kelp kelp3">
+<path filter="url(#wcN)" fill="url(#gV)" d="M38 140 C30 120 46 104 36 86 C28 70 42 54 32 36 C28 28 30 22 30 18 C36 24 38 32 40 38 C48 56 36 72 44 88 C52 106 40 122 46 140 Z"></path>
+<path fill="none" stroke="#2F6B66" stroke-opacity=".55" stroke-width=".8" stroke-linecap="round" d="M42 140 C36 122 46 106 40 88 C34 70 42 54 34 30"></path>
+</g>
+<g class="kelp kelp2">
+<path filter="url(#wcN)" fill="url(#gP)" d="M56 140 C64 124 52 110 60 94 C66 80 58 66 68 52 C70 49 72 47 73 46 C74 52 74 56 72 60 C66 72 74 84 68 98 C62 112 72 126 64 140 Z"></path>
+<path fill="none" stroke="#28425F" stroke-opacity=".5" stroke-width=".8" stroke-linecap="round" d="M60 140 C67 124 56 110 64 96 C70 82 64 66 72 50"></path>
+</g>
+<g class="kelp kelp3">
+<path filter="url(#wcN)" fill="url(#gO)" d="M48 140 C52 128 46 116 50 104 C52 98 52 94 54 90 C56 96 56 100 56 104 C54 116 58 128 54 140 Z"></path>
+<path fill="none" stroke="#8F5E1E" stroke-opacity=".5" stroke-width=".7" stroke-linecap="round" d="M51 140 C54 128 49 116 53 104 C54 98 54 95 54 92"></path>
+</g>
+<g fill="none" stroke="#2D4B6E" stroke-opacity=".45" stroke-width=".7">
+<circle class="bub" cx="34" cy="14" r="2"></circle>
+<circle class="bub" style="animation-delay: 2.3s" cx="40" cy="8" r="1.3"></circle>
+<circle class="bub" style="animation-delay: 4.6s" cx="74" cy="40" r="1.6"></circle>
+</g>
+</svg>
+</div>
+
+<div aria-hidden="true" class="nat n-algae3" style="animation-delay: 3.6s">
+<svg viewBox="0 0 100 140" focusable="false" style="opacity: 0.85">
+<g class="kelp">
+<path filter="url(#wcN)" fill="url(#gV)" d="M38 140 C30 120 46 104 36 86 C28 70 42 54 32 36 C28 28 30 22 30 18 C36 24 38 32 40 38 C48 56 36 72 44 88 C52 106 40 122 46 140 Z"></path>
+<path fill="none" stroke="#2F6B66" stroke-opacity=".55" stroke-width=".8" stroke-linecap="round" d="M42 140 C36 122 46 106 40 88 C34 70 42 54 34 30"></path>
+</g>
+<g class="kelp">
+<path filter="url(#wcN)" fill="url(#gP)" d="M56 140 C64 124 52 110 60 94 C66 80 58 66 68 52 C70 49 72 47 73 46 C74 52 74 56 72 60 C66 72 74 84 68 98 C62 112 72 126 64 140 Z"></path>
+<path fill="none" stroke="#28425F" stroke-opacity=".5" stroke-width=".8" stroke-linecap="round" d="M60 140 C67 124 56 110 64 96 C70 82 64 66 72 50"></path>
+</g>
+<g class="kelp kelp3">
+<path filter="url(#wcN)" fill="url(#gO)" d="M48 140 C52 128 46 116 50 104 C52 98 52 94 54 90 C56 96 56 100 56 104 C54 116 58 128 54 140 Z"></path>
+<path fill="none" stroke="#8F5E1E" stroke-opacity=".5" stroke-width=".7" stroke-linecap="round" d="M51 140 C54 128 49 116 53 104 C54 98 54 95 54 92"></path>
+</g>
+<g fill="none" stroke="#2D4B6E" stroke-opacity=".45" stroke-width=".7">
+<circle class="bub" cx="34" cy="14" r="2"></circle>
+<circle class="bub" style="animation-delay: 2.3s" cx="40" cy="8" r="1.3"></circle>
+<circle class="bub" style="animation-delay: 4.6s" cx="74" cy="40" r="1.6"></circle>
+</g>
+</svg>
+</div>
+
+<div aria-hidden="true" class="nat n-fish1" style="animation-delay: 3.2s"><div class="swim">
+<svg viewBox="0 0 60 30" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path fill="url(#gO)" d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15 Z"></path>
+<path fill="url(#gO)" d="M19 15 L4 6 C7 12 7 18 4 24 Z"></path>
+<path fill="url(#gM)" d="M40 9 C36 4 30 4 28 7 C32 8 36 9 40 9 Z"></path>
+</g>
+<g fill="none" stroke="#8F5E1E" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15"></path>
+<path d="M44 10 C41 14 41 17 44 20"></path>
+</g>
+<circle cx="48.5" cy="13.5" r=".9" fill="#1B1E23"></circle>
+</svg>
+</div></div>
+
+<div aria-hidden="true" class="nat n-fish2" style="animation-delay: 3.4s"><div class="swim swim2">
+<svg viewBox="0 0 60 30" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path fill="url(#gV)" d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15 Z"></path>
+<path fill="url(#gV)" d="M19 15 L4 6 C7 12 7 18 4 24 Z"></path>
+</g>
+<g fill="none" stroke="#2F6B66" stroke-opacity=".6" stroke-width=".7" stroke-linecap="round">
+<path d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15"></path>
+<path d="M44 10 C41 14 41 17 44 20"></path>
+</g>
+<circle cx="48.5" cy="13.5" r=".9" fill="#1B1E23"></circle>
+</svg>
+</div></div>
+
+<div aria-hidden="true" class="nat n-fish3" style="animation-delay: 3.5s"><div class="swim sw3">
+<svg viewBox="0 0 60 30" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path fill="url(#gM)" d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15 Z"></path>
+<path fill="url(#gM)" d="M19 15 L4 6 C7 12 7 18 4 24 Z"></path>
+<path fill="url(#gO)" d="M40 9 C36 4 30 4 28 7 C32 8 36 9 40 9 Z"></path>
+</g>
+<g fill="none" stroke="#9E4A5D" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15"></path>
+<path d="M44 10 C41 14 41 17 44 20"></path>
+</g>
+<circle cx="48.5" cy="13.5" r=".9" fill="#1B1E23"></circle>
+</svg>
+</div></div>
+
+<div aria-hidden="true" class="nat n-fish4" style="animation-delay: 3.7s"><div class="swim sw4">
+<svg viewBox="0 0 60 30" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path fill="url(#gV)" d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15 Z"></path>
+<path fill="url(#gV)" d="M19 15 L4 6 C7 12 7 18 4 24 Z"></path>
+</g>
+<g fill="none" stroke="#2F6B66" stroke-opacity=".6" stroke-width=".7" stroke-linecap="round">
+<path d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15"></path>
+<path d="M44 10 C41 14 41 17 44 20"></path>
+</g>
+<circle cx="48.5" cy="13.5" r=".9" fill="#1B1E23"></circle>
+</svg>
+</div></div>
+
+<div aria-hidden="true" class="nat n-fish5 flip" style="animation-delay: 3.9s"><div class="swim sw5">
+<svg viewBox="0 0 60 30" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path fill="url(#gP)" d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15 Z"></path>
+<path fill="url(#gP)" d="M19 15 L4 6 C7 12 7 18 4 24 Z"></path>
+<path fill="url(#gV)" d="M40 9 C36 4 30 4 28 7 C32 8 36 9 40 9 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15"></path>
+<path d="M44 10 C41 14 41 17 44 20"></path>
+</g>
+<circle cx="48.5" cy="13.5" r=".9" fill="#1B1E23"></circle>
+</svg>
+</div></div>
+</div>
+
+<nav class="lang" aria-label="Lenguajes">
+<div class="cloud-wash" aria-hidden="true"><div class="drift d3">
+<svg viewBox="0 0 300 170" preserveAspectRatio="none" focusable="false" style="opacity: 0.85">
+<path filter="url(#wcD)" fill="#F7F3EA" fill-opacity=".55" d="M-30 30 C10 10 60 14 90 30 C116 10 168 12 188 38 C226 30 262 52 258 82 C286 96 282 132 252 140 C246 162 210 172 182 160 C160 176 118 178 96 162 C70 176 24 174 2 158 L-30 158 Z"></path>
+<path filter="url(#wcA)" fill="url(#gCloud)" d="M-30 30 C10 10 60 14 90 30 C116 10 168 12 188 38 C226 30 262 52 258 82 C286 96 282 132 252 140 C246 162 210 172 182 160 C160 176 118 178 96 162 C70 176 24 174 2 158 L-30 158 Z"></path>
+<path filter="url(#wcC)" fill="url(#gCloud)" d="M-20 44 C14 28 56 32 84 46 C110 30 156 32 174 54 C206 50 236 66 232 92 C254 104 250 128 226 134 C214 152 184 156 162 146 C140 158 104 158 84 146 C60 156 18 152 -20 142 Z"></path>
+<path filter="url(#wcC)" fill="url(#gCloudW)" d="M150 120 C170 106 204 108 220 122 C236 134 228 152 206 154 C188 162 160 158 150 144 C144 136 144 126 150 120 Z"></path>
+</svg>
+</div></div>
+<div class="lang-in">
+<p class="lang-t"><span class="lang-w">Lenguajes</span><span class="lang-w" lang="en" aria-hidden="true">Languages</span><span class="lang-w" lang="no" aria-hidden="true">Språk</span></p>
+<ul class="lang-list">
+<li><a class="cl-a" href="#es" lang="es" hreflang="es"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsO)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Español</span></a></li>
+<li class="lang-sep" aria-hidden="true">/</li>
+<li><a class="cl-a" href="#en" lang="en" hreflang="en"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsV)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>English</span></a></li>
+<li class="lang-sep" aria-hidden="true">/</li>
+<li><a class="cl-a" href="#no" lang="no" hreflang="no"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsP)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Norsk</span></a></li>
+</ul>
+</div>
+</nav>
+
+<nav class="cloud" aria-label="Principal">
+<div class="cloud-wash" aria-hidden="true"><div class="drift d2">
+<svg viewBox="0 0 300 440" preserveAspectRatio="none" focusable="false" style="opacity: 0.85">
+<path filter="url(#wcA)" fill="url(#gCloud)" d="M-30 46 C20 22 76 30 108 54 C138 30 192 36 212 70 C252 66 284 102 272 140 C302 160 306 206 280 230 C306 260 296 308 260 322 C270 358 240 394 202 390 C184 420 140 430 110 408 C80 430 30 428 4 406 L-30 406 Z"></path>
+<path filter="url(#wcC)" fill="url(#gCloudW)" d="M-20 300 C20 280 70 286 100 304 C130 290 170 296 186 320 C200 346 180 372 150 374 C130 392 90 396 64 380 C36 392 0 388 -20 372 Z"></path>
+</svg>
+</div></div>
+<ul class="cl-list">
+<li style="animation-delay: 0.70s"><a class="cl-a" href="../#sobre-mi"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsO)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Sobre mí</span></a></li>
+<li class="cl-has" style="animation-delay: 0.82s"><a class="cl-a" href="../#proyectos"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsV)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Proyectos Personales</span></a>
+<div class="sub">
+<div class="sub-in">
+<svg class="sub-cloud" viewBox="0 0 300 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+<path filter="url(#wcD)" fill="#F7F3EA" d="M10 40 C40 14 92 18 118 38 C148 14 204 20 222 50 C262 44 296 78 286 112 C306 130 300 168 272 178 C268 200 236 214 206 204 C186 220 140 222 118 204 C90 220 42 214 26 194 C2 196 -10 172 2 152 C-10 128 -6 96 8 80 C-4 64 -2 50 10 40 Z"></path>
+<path filter="url(#wcA)" fill="url(#gCloud)" style="opacity: 0.85" d="M10 40 C40 14 92 18 118 38 C148 14 204 20 222 50 C262 44 296 78 286 112 C306 130 300 168 272 178 C268 200 236 214 206 204 C186 220 140 222 118 204 C90 220 42 214 26 194 C2 196 -10 172 2 152 C-10 128 -6 96 8 80 C-4 64 -2 50 10 40 Z"></path>
+</svg>
+<a class="sub-btn" href="./" aria-current="page"><svg class="sub-btn-bg" viewBox="0 0 216 52" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsV)" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path><path fill="none" stroke="#2F6B66" stroke-opacity=".35" stroke-width=".8" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path></svg><span>Comercio exterior de Chile</span><svg class="sub-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 8H13M9 4L13 8L9 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+</div>
+</div></li>
+<li style="animation-delay: 0.94s"><a class="cl-a" href="../#habilidades"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsM)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Habilidades</span></a></li>
+<li style="animation-delay: 1.06s"><a class="cl-a" href="../#contacto"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsP)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Contacto</span></a></li>
+</ul>
+</nav>
+
+<div class="wrap">
+<header class="top rise" style="animation-delay: .05s">
+<button class="menu-btn" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-movil">
+<span class="menu-ico" data-icon="open"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 7.5H17M3 12.5H17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg></span>
+<span class="menu-ico" data-icon="close" hidden><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4.5 4.5L15.5 15.5M15.5 4.5L4.5 15.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg></span>
+</button>
+<nav id="menu-movil" class="menu-panel" aria-label="Principal" hidden>
+<svg class="mp-cloud" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+<path filter="url(#wcD)" fill="#F7F3EA" d="M8 46 C40 18 92 22 118 44 C148 20 200 26 218 58 C256 52 290 88 280 126 C304 148 298 196 272 212 C290 246 266 284 226 280 C206 304 160 306 136 284 C106 304 56 298 34 276 C6 280 -8 254 2 230 C-10 200 -6 160 6 140 C-8 110 -6 70 8 46 Z"></path>
+<path filter="url(#wcA)" fill="url(#gCloud)" style="opacity: 0.85" d="M8 46 C40 18 92 22 118 44 C148 20 200 26 218 58 C256 52 290 88 280 126 C304 148 298 196 272 212 C290 246 266 284 226 280 C206 304 160 306 136 284 C106 304 56 298 34 276 C6 280 -8 254 2 230 C-10 200 -6 160 6 140 C-8 110 -6 70 8 46 Z"></path>
+</svg>
+<a class="cl-a" href="../#sobre-mi"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsO)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Sobre mí</span></a>
+<a class="cl-a" href="../#proyectos"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsV)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Proyectos Personales</span></a>
+<a class="sub-btn sub-btn-m" href="./" aria-current="page"><svg class="sub-btn-bg" viewBox="0 0 216 52" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsV)" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path><path fill="none" stroke="#2F6B66" stroke-opacity=".35" stroke-width=".8" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path></svg><span>Comercio exterior de Chile</span><svg class="sub-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 8H13M9 4L13 8L9 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+<a class="cl-a" href="../#habilidades"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsM)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Habilidades</span></a>
+<a class="cl-a" href="../#contacto"><svg class="cl-stroke" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsP)" d="M6 25 C30 13 80 15 120 17 C160 19 196 11 214 19 C213 29 178 33 128 31 C84 29 40 37 10 33 C4 31 3 28 6 25 Z"></path></svg><span>Contacto</span></a>
+</nav>
+</header>
+
+<section class="p-hero" aria-labelledby="titulo">
+<div class="copy">
+<nav class="crumb meta rise" style="animation-delay: .1s" aria-label="Ruta"><a href="../">Inicio</a><span aria-hidden="true">/</span><a href="../#proyectos">Proyectos personales</a><span aria-hidden="true">/</span><span aria-current="page">Comercio exterior de Chile</span></nav>
+<h1 class="title" id="titulo">
+<span class="hello rise" style="animation-delay: .2s">Proyecto personal</span>
+<span class="nm rise" style="animation-delay: .36s">Comercio exterior </span>
+<span class="nm nm2 rise" style="animation-delay: .52s"><span class="ul-wrap">de Chile<svg class="ul" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><polyline class="draw" style="animation-delay: 1.3s; animation-duration: 1.8s" pathLength="1" vector-effect="non-scaling-stroke" fill="none" stroke="#3F7C74" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="0,17 8,15 15,16 23,12 31,13 39,10 47,11 55,8 63,9 71,6 79,7 87,4 94,5 100,2"></polyline></svg><span class="ul-dot"></span></span></span>
+</h1>
+<div class="rule rise" style="animation-delay: .72s"></div>
+<p class="lede rise" style="animation-delay: .84s">Un proyecto de Data Science que hice de principio a fin con los registros de exportaciones e importaciones del Servicio Nacional de Aduanas: 15,6 millones de registros de declaraciones de aduana, entre enero de 2024 y agosto de 2026.</p>
+<p class="lede rise" style="animation-delay: .96s">Aquí cuento cómo lo desarrollé: de dónde salió la idea, con qué problemas me encontré en los datos, qué decisiones fui tomando y qué descubrí sobre lo que Chile vende, a quién y por qué.</p>
+<ul class="stats rise" style="animation-delay: 1.1s">
+<li class="stat"><b>15,6 M</b><span class="meta">registros de aduana</span></li>
+<li class="stat"><b>93</b><span class="meta">archivos descargados</span></li>
+<li class="stat"><b>32</b><span class="meta">meses de historia</span></li>
+<li class="stat"><b>0</b><span class="meta">registros perdidos</span></li>
+</ul>
+</div>
+
+<div class="scene" aria-hidden="true">
+<div class="dk wash" style="left: 54%; top: 0; width: 36%; animation-delay: .5s"><div class="drift d3">
+<svg viewBox="0 0 200 200" focusable="false" style="opacity: 0.85"><path filter="url(#wcA)" fill="url(#gO)" d="M40 100 C38 64 66 38 102 38 C140 38 164 66 162 102 C160 138 132 162 98 160 C64 158 42 134 40 100 Z"></path></svg>
+</div></div>
+<div class="dk wash" style="left: -10%; top: 22%; width: 120%; animation-delay: .3s"><div class="drift">
+<svg viewBox="0 0 460 300" focusable="false" style="opacity: 0.85"><path filter="url(#wcA)" fill="url(#gP)" d="M60 150 C44 90 120 40 220 44 C320 48 420 80 414 156 C408 228 320 264 214 258 C120 252 74 214 60 150 Z"></path></svg>
+</div></div>
+<div class="dk fade" style="left: 8%; top: 8%; width: 24%; animation-delay: 1.6s"><div class="glide"><svg viewBox="0 0 80 50" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path class="wingL" fill="url(#gP)" d="M40 26 C32 14 20 8 6 10 C18 14 26 20 34 28 Z"></path>
+<path class="wingR" fill="url(#gP)" d="M44 26 C50 14 62 8 76 6 C66 14 56 22 48 28 Z"></path>
+<path fill="url(#gP)" d="M28 28 C36 23 46 23 54 27 C46 31 36 32 28 28 Z"></path>
+<path fill="url(#gV)" d="M30 28 L14 35 L22 28.5 L15 22 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M28 28 C36 23 46 23 54 27"></path>
+<path class="wingL" d="M40 26 C32 14 20 8 6 10"></path>
+<path class="wingR" d="M44 26 C50 14 62 8 76 6"></path>
+</g>
+<circle cx="50.5" cy="26" r=".8" fill="#1B1E23"></circle>
+</svg></div></div>
+<div class="dk fade" style="left: 33%; top: 19%; width: 14%; animation-delay: 1.9s"><div class="glide g2"><svg viewBox="0 0 80 50" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path class="wingL" fill="url(#gP)" d="M40 26 C32 14 20 8 6 10 C18 14 26 20 34 28 Z"></path>
+<path class="wingR" fill="url(#gP)" d="M44 26 C50 14 62 8 76 6 C66 14 56 22 48 28 Z"></path>
+<path fill="url(#gP)" d="M28 28 C36 23 46 23 54 27 C46 31 36 32 28 28 Z"></path>
+<path fill="url(#gV)" d="M30 28 L14 35 L22 28.5 L15 22 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M28 28 C36 23 46 23 54 27"></path>
+<path class="wingL" d="M40 26 C32 14 20 8 6 10"></path>
+<path class="wingR" d="M44 26 C50 14 62 8 76 6"></path>
+</g>
+<circle cx="50.5" cy="26" r=".8" fill="#1B1E23"></circle>
+</svg></div></div>
+<div class="dk fade" style="left: 22%; top: 27%; width: 9%; animation-delay: 2.2s"><div class="glide g3"><svg viewBox="0 0 80 50" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path class="wingL" fill="url(#gP)" d="M40 26 C32 14 20 8 6 10 C18 14 26 20 34 28 Z"></path>
+<path class="wingR" fill="url(#gP)" d="M44 26 C50 14 62 8 76 6 C66 14 56 22 48 28 Z"></path>
+<path fill="url(#gP)" d="M28 28 C36 23 46 23 54 27 C46 31 36 32 28 28 Z"></path>
+<path fill="url(#gV)" d="M30 28 L14 35 L22 28.5 L15 22 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M28 28 C36 23 46 23 54 27"></path>
+<path class="wingL" d="M40 26 C32 14 20 8 6 10"></path>
+<path class="wingR" d="M44 26 C50 14 62 8 76 6"></path>
+</g>
+<circle cx="50.5" cy="26" r=".8" fill="#1B1E23"></circle>
+</svg></div></div>
+<div class="dk appear" style="left: 9%; top: 40%; width: 82%; animation-delay: .9s"><div class="sail"><div class="bob">
+<svg viewBox="0 0 160 100" focusable="false" style="opacity: 0.92">
+<g fill="none" stroke="#686C72" stroke-opacity=".5" stroke-width=".7">
+<circle class="bub" cx="26" cy="15" r="2.4"></circle>
+<circle class="bub" style="animation-delay: 2.2s" cx="30" cy="9" r="1.8"></circle>
+<circle class="bub" style="animation-delay: 4.4s" cx="23" cy="11" r="1.4"></circle>
+</g>
+<g filter="url(#wcN)">
+<path fill="url(#gO)" d="M22 21 H30 V33 H22 Z"></path>
+<path fill="url(#gV)" d="M16 32 H38 V58 H16 Z"></path>
+<rect fill="url(#gO)" x="40" y="49" width="14" height="9"></rect>
+<rect fill="url(#gV)" x="55.5" y="49" width="14" height="9"></rect>
+<rect fill="url(#gM)" x="71" y="49" width="14" height="9"></rect>
+<rect fill="url(#gP)" x="86.5" y="49" width="14" height="9"></rect>
+<rect fill="url(#gO)" x="102" y="49" width="14" height="9"></rect>
+<rect fill="url(#gM)" x="117.5" y="49" width="14" height="9"></rect>
+<rect fill="url(#gP)" x="55.5" y="39.5" width="14" height="9"></rect>
+<rect fill="url(#gO)" x="71" y="39.5" width="14" height="9"></rect>
+<rect fill="url(#gV)" x="86.5" y="39.5" width="14" height="9"></rect>
+<rect fill="url(#gM)" x="102" y="39.5" width="14" height="9"></rect>
+<path fill="url(#gP)" d="M8 58 H154 C151 66 145 76 138 82 C106 86 46 86 22 82 C15 76 11 68 8 58 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M8 58 H154 C151 66 145 76 138 82 C106 86 46 86 22 82 C15 76 11 68 8 58"></path>
+<path d="M16 32 H38 V58 M20 38 H34 M20 44 H34"></path>
+<path d="M40 49 H131.5 M55.5 39.5 H116"></path>
+</g>
+<path d="M14 70 H146" stroke="#B4566B" stroke-opacity=".5" stroke-width="1.6"></path>
+<circle cx="140" cy="64" r="1.6" fill="none" stroke="#28425F" stroke-opacity=".6" stroke-width=".7"></circle>
+</svg>
+</div></div></div>
+<div class="dk fade" style="left: -4%; top: 73%; width: 108%; animation-delay: 1.2s">
+<svg viewBox="0 0 200 50" focusable="false">
+<g style="opacity: 0.85"><path filter="url(#wcB)" fill="url(#gArea)" d="M0 12 C14 8 26 16 40 12 S66 8 80 12 S106 16 120 12 S146 8 160 12 S186 16 200 12 V50 H0 Z"></path></g>
+<path class="draw" style="animation-delay: 1.5s; animation-duration: 2.8s" pathLength="1" fill="none" stroke="#2D4B6E" stroke-opacity=".6" stroke-width=".9" stroke-linecap="round" d="M0 12 C14 8 26 16 40 12 S66 8 80 12 S106 16 120 12 S146 8 160 12 S186 16 200 12"></path>
+<path class="fade" style="animation-delay: 2.4s" fill="none" stroke="#3F7C74" stroke-opacity=".45" stroke-width=".7" stroke-linecap="round" stroke-dasharray="6 5" d="M10 24 C24 20 36 28 50 24 S76 20 90 24 S116 28 130 24 S156 20 170 24 S186 28 196 26"></path>
+</svg>
+</div>
+<svg class="dk fade" style="left: 70%; top: 34%; width: 22%; animation-delay: 2s" viewBox="0 0 120 90" focusable="false">
+<g filter="url(#wcS)" style="opacity: 0.68">
+<circle cx="18" cy="30" r="4" fill="#C38A3A" fill-opacity=".55"></circle>
+<circle cx="34" cy="18" r="2" fill="#C38A3A" fill-opacity=".6"></circle>
+<circle cx="48" cy="40" r="3" fill="#B4566B" fill-opacity=".45"></circle>
+<circle cx="70" cy="26" r="1.6" fill="#C38A3A" fill-opacity=".6"></circle>
+<circle cx="84" cy="48" r="4.4" fill="#C38A3A" fill-opacity=".4"></circle>
+</g>
+</svg>
+</div>
+</section>
+
+<div class="article">
+<nav class="toc" id="indice" aria-label="Índice del artículo">
+<button class="toc-btn" type="button" aria-expanded="false" aria-controls="toc-panel"><span class="meta">Índice</span> <span class="toc-cur">01 · Contexto</span><svg class="toc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5L6 8L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+<div class="toc-panel" id="toc-panel">
+<p class="meta toc-h">En este artículo</p>
+<ol class="toc-list">
+<li><a href="#contexto" data-label="01 · Contexto"><span>01</span><em>Contexto</em></a></li>
+<li><a href="#idea" data-label="02 · La idea y las preguntas"><span>02</span><em>La idea y las preguntas</em></a></li>
+<li><a href="#datos" data-label="03 · Elección de los datos"><span>03</span><em>Elección de los datos</em></a></li>
+<li><a href="#primer-contacto" data-label="04 · Exploración inicial"><span>04</span><em>Exploración inicial</em></a></li>
+<li><a href="#limpieza" data-label="05 · Limpieza y preparación"><span>05</span><em>Limpieza y preparación</em></a></li>
+<li><a href="#decisiones" data-label="06 · Problemas y decisiones"><span>06</span><em>Problemas y decisiones</em></a></li>
+<li><a href="#exploracion" data-label="07 · Análisis exploratorio"><span>07</span><em>Análisis exploratorio</em></a></li>
+<li class="toc-has"><a href="#hallazgos" data-label="08 · Principales hallazgos"><span>08</span><em>Principales hallazgos</em></a>
+<ol class="toc-sub">
+<li><a href="#pregunta-1" data-label="08 · Pregunta 1 · Precios y concentración"><span>P1</span><em>Precios y concentración</em></a></li>
+<li><a href="#pregunta-2" data-label="08 · Pregunta 2 · Red de productos"><span>P2</span><em>Red de productos</em></a></li>
+<li><a href="#pregunta-3" data-label="08 · Pregunta 3 · Pronóstico"><span>P3</span><em>Pronóstico</em></a></li>
+<li><a href="#pregunta-4" data-label="08 · Pregunta 4 · Alertas del modelo"><span>P4</span><em>Alertas del modelo</em></a></li>
+<li><a href="#pregunta-5" data-label="08 · Pregunta 5 · Aranceles de EE.UU."><span>P5</span><em>Aranceles de EE.UU.</em></a></li>
+<li><a href="#pregunta-6" data-label="08 · Pregunta 6 · Experimento"><span>P6</span><em>Experimento</em></a></li>
+</ol>
+</li>
+<li><a href="#conclusiones" data-label="09 · Conclusiones"><span>09</span><em>Conclusiones</em></a></li>
+<li><a href="#aprendizajes" data-label="10 · Aprendizajes"><span>10</span><em>Aprendizajes</em></a></li>
+</ol>
+</div>
+</nav>
+
+<div class="article-body">
+
+<!-- 01 · Contexto -->
+<section class="ch" id="contexto" aria-labelledby="h-contexto">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">01 · Contexto</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-contexto">Un país que vive de <em>vender afuera</em></h2>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Chile es una economía pequeña y muy abierta: el comercio de bienes equivale a más de la mitad de su PIB. Pero sus exportaciones dependen de pocos productos —cobre, litio, fruta, salmón, celulosa— y de pocos mercados, lo que la hace muy sensible a los precios internacionales y a lo que pase con compradores como China.</p>
+<p class="rv">El Servicio Nacional de Aduanas publica como datos abiertos cada declaración de exportación (DUS) y de importación (DIN), que es el documento que se presenta cada vez que una mercancía sale o entra al país, con el detalle de cada producto. Es una fuente muy rica y, a mi juicio, poco aprovechada.</p>
+</div>
+<blockquote class="thought rv">Me pareció un buen escenario para trabajar con datos reales, grandes y desordenados, y no con un dataset que alguien ya hubiera limpiado por mí.</blockquote>
+<div class="prose">
+<p class="rv">Ese fue el punto de partida: tomar los registros oficiales tal como se publican y recorrer con ellos todo el camino de un proyecto de datos, desde descargar los archivos hasta evaluar modelos y medir efectos.</p>
+</div>
+</section>
+
+<!-- 02 · La idea -->
+<section class="ch" id="idea" aria-labelledby="h-idea">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">02 · La idea</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-idea">Las preguntas que <em>quería responder</em></h2>
+</div>
+</div>
+<div class="prose">
+<p class="rv">No tenía un cliente real, así que me planteé las preguntas desde la mirada de un analista de comercio exterior o de una agencia de promoción de exportaciones: alguien que necesita entender qué está pasando, anticipar los próximos meses y saber cuándo puede confiar en sus modelos.</p>
+</div>
+<ol class="qs">
+<li class="rv"><p>¿Qué explica la evolución reciente del comercio chileno y cuán concentrado está?</p></li>
+<li class="rv"><p>¿Qué productos comparten capacidades productivas y hacia qué mercados podría diversificarse Chile?</p></li>
+<li class="rv"><p>¿Cuánto se comerciará en los próximos meses, por producto y país, y qué flujos esporádicos se van a repetir?</p></li>
+<li class="rv"><p>¿Cómo saber cuándo un modelo en uso deja de ser confiable porque los datos cambiaron?</p></li>
+<li class="rv later"><div><p>¿Cuánto afectaron los aranceles que impuso EE.UU. en 2025 a las exportaciones chilenas?</p><span class="meta">Se sumó al terminar</span></div></li>
+<li class="rv later"><div><p>¿Qué tipo de apoyo convierte una oportunidad de exportación en una exportación real?</p><span class="meta">Se sumó al terminar</span></div></li>
+</ol>
+<div class="prose">
+<p class="rv">Las dos últimas aparecieron cuando creía que ya había terminado: eran preguntas que mis modelos no podían contestar, así que las agregué como nuevas vueltas del proyecto.</p>
+<p class="rv">Algo que tuve claro desde el principio fue <strong>no decidir de antemano</strong> qué tipo de modelo iba a construir. Primero quería entender cómo se comportaban los datos y, a partir de eso, elegir qué modelar. Organicé el trabajo con CRISP-DM, un marco muy usado en proyectos de datos que va desde entender el problema hasta evaluar y poner en uso los resultados. En teoría es un ciclo ordenado; en la práctica tuve que volver atrás varias veces.</p>
+</div>
+</section>
+
+<!-- 03 · Los datos -->
+<section class="ch" id="datos" aria-labelledby="h-datos">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">03 · Los datos</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-datos">Elegir los datos <em>y ampliarlos</em></h2>
+</div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 112px">
+<div class="dk appear" style="left: 0; top: 0; width: 100%; animation-delay: .3s"><div class="hover">
+<svg viewBox="0 0 100 100" focusable="false" style="opacity: 0.9">
+<g transform="rotate(-9 46 52)">
+<rect x="18" y="18" width="50" height="64" fill="#FBF8F1" fill-opacity=".8"></rect>
+<rect filter="url(#wcN)" x="18" y="18" width="50" height="64" fill="url(#gO)" opacity=".55"></rect>
+<rect x="18" y="18" width="50" height="64" fill="none" stroke="#8F5E1E" stroke-opacity=".5" stroke-width=".7"></rect>
+<text x="25" y="31" font-family="Geist Mono, monospace" font-size="7" fill="#8F5E1E" fill-opacity=".85">DIN</text>
+<path d="M25 38 H60 M25 44 H56 M25 50 H60 M25 56 H50" stroke="#8F5E1E" stroke-opacity=".4" stroke-width=".7"></path>
+</g>
+<g transform="rotate(7 58 50)">
+<path d="M34 20 H76 L84 28 V84 H34 Z" fill="#FBF8F1"></path>
+<path filter="url(#wcN)" d="M34 20 H76 L84 28 V84 H34 Z" fill="url(#gP)" opacity=".6"></path>
+<path d="M34 20 H76 L84 28 V84 H34 Z M76 20 V28 H84" fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7"></path>
+<text x="41" y="33" font-family="Geist Mono, monospace" font-size="7" fill="#28425F" fill-opacity=".85">DUS</text>
+<path d="M41 40 H76 M41 46 H72 M41 52 H76 M41 58 H66" stroke="#28425F" stroke-opacity=".4" stroke-width=".7"></path>
+<path d="M41 66 H77 M41 72 H77 M53 63 V76 M65 63 V76" stroke="#28425F" stroke-opacity=".3" stroke-width=".6"></path>
+</g>
+</svg>
+</div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Trabajé solo con fuentes públicas: los registros de Aduanas y la documentación oficial necesaria para entenderlos. Las empresas aparecen anonimizadas, con un número en lugar de su RUT, un detalle que más adelante iba a ser importante.</p>
+</div>
+<ul class="cards">
+<li class="card rv" style="--c: #2D4B6E"><span class="meta">datos.gob.cl</span><h3 class="card-t">DUS · Exportaciones</h3><p>Las declaraciones de exportación: 84 columnas y un archivo por mes. Cada fila es un producto dentro de una declaración.</p></li>
+<li class="card rv" style="--c: #C38A3A; animation-delay: .08s"><span class="meta">datos.gob.cl</span><h3 class="card-t">DIN · Importaciones</h3><p>Las declaraciones de importación: 178 columnas, también con un archivo por mes.</p></li>
+<li class="card rv" style="--c: #3F7C74; animation-delay: .16s"><span class="meta">datos.gob.cl</span><h3 class="card-t">Diccionario de datos</h3><p>El documento que explica qué significa cada columna. Terminó siendo mi única referencia confiable para interpretarlas.</p></li>
+<li class="card rv" style="--c: #B4566B; animation-delay: .24s"><span class="meta">aduana.cl</span><h3 class="card-t">Anexo 51</h3><p>Las tablas oficiales que traducen los códigos a nombres: países, aduanas, puertos y tipos de operación.</p></li>
+</ul>
+
+<div class="beat">
+<div class="hd"><div><h3 class="sub-t rv">De 8 meses a <em>32</em></h3></div></div>
+<div class="prose">
+<p class="rv">Empecé solo con los archivos de enero a agosto de 2026, pero al poco tiempo me di cuenta de que 8 meses no alcanzaban. No había forma de ver patrones que se repiten cada año, como la temporada de la fruta, ni de probar un modelo en varios momentos distintos. Sin años anteriores, un modelo no podría distinguir entre “enero es alto porque es enero” y “enero es alto porque hubo un boom”.</p>
+<p class="rv">Así que amplié el período a enero de 2024 – agosto de 2026: <strong>32 meses y 93 archivos comprimidos</strong> (cerca de 1 GB) descargados desde datos.gob.cl. Valió la pena, aunque complicó bastante el trabajo, porque los archivos venían en formatos distintos y algunos meses estaban divididos en cinco o seis partes.</p>
+<p class="rv">Aduanas también publica tablas de bultos y de documentos de transporte. Las revisé al comienzo, pero no aportaban a mis preguntas y decidí dejarlas fuera.</p>
+</div>
+<h4 class="mini-t rv">¿Seis u ocho dígitos?</h4>
+<div class="prose">
+<p class="rv">Cada producto viene con un código arancelario, el número con que Aduanas clasifica las mercancías. En Chile ese código tiene 8 dígitos (5.621 códigos distintos en los datos), pero decidí trabajar con los primeros 6 (3.979 códigos), que son el estándar internacional. Los dos últimos dígitos son aperturas propias de Chile que cambian cada vez que se actualiza el arancel, y eso cortaría las series en el tiempo. Además, con más detalle aparecen más meses sin comercio y más ruido. A cambio, acepté perder la distinción entre algunas variedades de un mismo producto.</p>
+</div>
+</div>
+</section>
+
+<!-- 04 · Exploración inicial -->
+<section class="ch" id="primer-contacto" aria-labelledby="h-primer">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">04 · Exploración inicial</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-primer">Cuando la documentación <em>no calza</em> con los datos</h2>
+</div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 104px">
+<div class="dk appear" style="left: 0; top: 0; width: 100%; animation-delay: .3s"><div class="hover hover2">
+<svg viewBox="0 0 100 100" focusable="false" style="opacity: 0.9">
+<g filter="url(#wcN)">
+<path fill="url(#gO)" d="M55 60 L61 54 L86 79 C88 81 88 84 86 86 C84 88 81 88 79 86 Z"></path>
+<circle fill="url(#gP)" cx="40" cy="40" r="26"></circle>
+</g>
+<g fill="#2D4B6E" fill-opacity=".55"><rect x="27" y="42" width="5" height="12"></rect><rect x="34" y="34" width="5" height="20"></rect><rect x="41" y="38" width="5" height="16"></rect><rect x="48" y="28" width="5" height="26"></rect></g>
+<g fill="none" stroke-linecap="round">
+<circle cx="40" cy="40" r="26" stroke="#28425F" stroke-opacity=".55" stroke-width=".9"></circle>
+<circle cx="40" cy="40" r="21" stroke="#28425F" stroke-opacity=".25" stroke-width=".6"></circle>
+<path d="M24 30 C27 22 34 17 42 16" stroke="#fff" stroke-opacity=".7" stroke-width="1.6"></path>
+<path d="M55 60 L61 54 L86 79 C88 81 88 84 86 86 C84 88 81 88 79 86 Z" stroke="#8F5E1E" stroke-opacity=".5" stroke-width=".7"></path>
+</g>
+</svg>
+</div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Los archivos son texto plano separado por punto y coma, sin nombres de columnas y con una codificación de caracteres antigua (latin-1) que, si no se lee correctamente, desarma las tildes y las eñes. Antes de calcular cualquier cosa quise entender qué había realmente adentro, y ahí aprendí algo que me acompañó todo el proyecto: la documentación de una fuente es una pista sobre los datos, no una garantía.</p>
+</div>
+
+<h3 class="mini-t rv">La descripción de los datos describía otra cosa</h3>
+<div class="prose">
+<p class="rv">Cada carpeta traía un archivo que supuestamente explicaba la estructura de sus datos. Me llamó la atención que los dos pesaran exactamente lo mismo: 25.773 bytes. Comparé sus huellas digitales (un código que cambia si el archivo cambia aunque sea en un carácter) y confirmé que eran idénticos. Ambos describían solo las importaciones, así que las 84 columnas de las exportaciones quedaban sin nombre.</p>
+<p class="rv">Encontré el diccionario oficial en datos.gob.cl, pero tampoco lo usé a ciegas: revisé que todas las filas tuvieran 84 campos y que la columna donde debía estar el producto tuviera códigos válidos (por ejemplo, <code>08092919</code>, que corresponde a cerezas frescas).</p>
+</div>
+
+<h3 class="mini-t rv">Sumar lo que no correspondía inflaba todo 1,8 veces</h3>
+<div class="prose">
+<p class="rv">Cada fila de los archivos es un producto dentro de una declaración, pero el monto total de la declaración se repite en todas sus filas. Si lo hubiera sumado sin darme cuenta, los totales habrían salido inflados: en marzo de 2025, por ejemplo, habría obtenido US$ 16.015 millones en vez de 8.706. Por eso siempre sumo el valor de cada producto por separado.</p>
+</div>
+<ul class="duo">
+<li class="rv" style="--c: #B4566B"><b>×1,8</b><span class="meta">Si sumaba el total repetido</span><p>Cuánto se inflarían las cifras al sumar un monto que aparece repetido en cada fila.</p></li>
+<li class="rv" style="--c: #2F6B66; animation-delay: .1s"><b>99.629</b><span class="meta">Millones de US$ · exportaciones 2024</span><p>El total calculado correctamente. Coincide con la cifra anual del Banco Central (cerca de US$ 100 mil millones), una buena señal de que iba por buen camino.</p></li>
+</ul>
+
+<h3 class="mini-t rv">El número de cada empresa cambiaba todos los meses</h3>
+<div class="prose">
+<p class="rv">El diccionario decía que cada empresa se identifica con un “número único correlativo”. Mi primera lectura fue que ese número representaba a la misma empresa durante todo el período, y yo tenía la idea de analizar cómo evolucionaban las empresas en el tiempo. Antes de usarlo quise comprobarlo con un dato que no debería cambiar: la comuna de cada empresa.</p>
+</div>
+<figure class="viz rv">
+<p class="viz-t">¿El mismo número es la misma empresa?</p>
+<p class="viz-s">Porcentaje de números de empresa que mantienen una sola comuna, dentro de un mismo mes y entre meses distintos.</p>
+<p class="meta viz-g">Exportadores</p>
+<div class="hb"><span class="hb-l">Dentro del mismo mes</span><span class="hb-t"><span class="hb-f c-p" style="--v: 97.6%"></span></span><span class="hb-v">97,6%</span></div>
+<div class="hb"><span class="hb-l">Entre meses</span><span class="hb-t"><span class="hb-f c-o" style="--v: 1.1%; animation-delay: .5s"></span></span><span class="hb-v">1,1%</span></div>
+<p class="meta viz-g">Importadores</p>
+<div class="hb"><span class="hb-l">Dentro del mismo mes</span><span class="hb-t"><span class="hb-f c-p" style="--v: 98.6%; animation-delay: .4s"></span></span><span class="hb-v">98,6%</span></div>
+<div class="hb"><span class="hb-l">Entre meses</span><span class="hb-t"><span class="hb-f c-o" style="--v: .1%; animation-delay: .7s"></span></span><span class="hb-v">0,1%</span></div>
+<figcaption class="cap"><span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/01_eda.ipynb" target="_blank" rel="noopener">Notebook 1 EDA</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Dentro de un mismo mes, el número sí identifica a una empresa. Entre meses, no: el mismo número corresponde a empresas distintas, porque se reasigna en cada archivo. Tuve que <strong>descartar todas las preguntas por empresa</strong> y construir el análisis sobre lo que sí se mantiene estable: el producto y el país. También descarté intentar reidentificar a las empresas cruzando otros datos; el anonimato es una decisión deliberada de quien publica la información y quise respetarla.</p>
+<p class="rv">Al revisar los códigos de país apareció otra sorpresa: algunos no son países. Hay códigos para combustible vendido a barcos extranjeros, para “rancho” (provisiones para esos mismos barcos), para orígenes varios o para zonas francas. Los marqué para poder excluirlos donde distorsionaban el análisis; si no, “orígenes varios” habría aparecido en algunos análisis como un socio comercial inventado y conectado con todo.</p>
+</div>
+</section>
+
+<!-- 05 · Limpieza -->
+<section class="ch" id="limpieza" aria-labelledby="h-limpieza">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">05 · Limpieza y preparación</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-limpieza">Ningún dato se descarta <em>en silencio</em></h2>
+</div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 116px; --ar: .95">
+<div class="dk appear" style="left: 8%; top: 0; width: 52%; animation-delay: .3s"><div class="float"><svg viewBox="0 0 60 100" focusable="false" style="opacity: 0.85">
+<g class="tent" fill="none" stroke-linecap="round">
+<g filter="url(#wcN)" stroke="#B4566B" stroke-opacity=".2" stroke-width="5"><path d="M24 36 C20 52 28 62 24 78"></path><path d="M36 36 C40 52 32 64 37 80"></path></g>
+<g stroke="#9E4A5D" stroke-opacity=".5" stroke-width=".8">
+<path d="M14 36 C12 50 18 60 14 74 C12 82 15 90 13 96"></path>
+<path d="M22 36 C20 54 26 64 22 82"></path>
+<path d="M30 36 C31 52 27 66 31 88"></path>
+<path d="M38 36 C40 54 34 64 38 84"></path>
+<path d="M46 36 C48 50 42 60 46 72 C48 80 45 88 47 94"></path>
+</g>
+</g>
+<path filter="url(#wcN)" fill="url(#gM)" d="M8 34 C8 14 20 4 30 4 C40 4 52 14 52 34 C47 37 42 33 37 36 C33 33 27 33 23 36 C18 33 13 37 8 34 Z"></path>
+<path filter="url(#wcN)" fill="url(#gP)" opacity=".7" d="M18 26 C18 18 24 12 30 12 C36 12 42 18 42 26 C36 24 24 24 18 26 Z"></path>
+<path fill="none" stroke="#9E4A5D" stroke-opacity=".55" stroke-width=".8" d="M8 34 C8 14 20 4 30 4 C40 4 52 14 52 34"></path>
+</svg></div></div>
+<div class="dk appear" style="left: 62%; top: 30%; width: 34%; animation-delay: .6s"><div class="float f2"><svg viewBox="0 0 60 100" focusable="false" style="opacity: 0.85">
+<g class="tent" fill="none" stroke-linecap="round">
+<g filter="url(#wcN)" stroke="#2D4B6E" stroke-opacity=".2" stroke-width="5"><path d="M24 36 C20 52 28 62 24 78"></path><path d="M36 36 C40 52 32 64 37 80"></path></g>
+<g stroke="#28425F" stroke-opacity=".5" stroke-width=".8">
+<path d="M14 36 C12 50 18 60 14 74 C12 82 15 90 13 96"></path>
+<path d="M22 36 C20 54 26 64 22 82"></path>
+<path d="M30 36 C31 52 27 66 31 88"></path>
+<path d="M38 36 C40 54 34 64 38 84"></path>
+<path d="M46 36 C48 50 42 60 46 72 C48 80 45 88 47 94"></path>
+</g>
+</g>
+<path filter="url(#wcN)" fill="url(#gP)" d="M8 34 C8 14 20 4 30 4 C40 4 52 14 52 34 C47 37 42 33 37 36 C33 33 27 33 23 36 C18 33 13 37 8 34 Z"></path>
+<path filter="url(#wcN)" fill="url(#gM)" opacity=".7" d="M18 26 C18 18 24 12 30 12 C36 12 42 18 42 26 C36 24 24 24 18 26 Z"></path>
+<path fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".8" d="M8 34 C8 14 20 4 30 4 C40 4 52 14 52 34"></path>
+</svg></div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Esta fue la parte que más tiempo me llevó, y no me arrepiento. Decidí leer todo primero como texto, convertir después cada columna a número o fecha según correspondiera y <strong>contar</strong> cada valor que no se pudiera convertir. No quería que el programa descartara datos por su cuenta sin avisarme. Gracias a eso fueron apareciendo problemas reales en los archivos originales:</p>
+</div>
+<ul class="issues">
+<li class="issue rv"><h3 class="issue-t"><span class="meta">Problema</span>Registros partidos en dos líneas</h3><div><p>En 9 registros de importación, un salto de línea dentro de un campo partía la fila en dos.</p><p><b>Solución:</b> si una fila incompleta, unida a la siguiente, completa exactamente las 178 columnas esperadas, las vuelvo a unir.</p></div></li>
+<li class="issue rv"><h3 class="issue-t"><span class="meta">Problema</span>Un carácter invisible</h3><div><p>El nombre de un puerto de Pakistán traía escondido un carácter de salto de línea que no se ve a simple vista. Una de las herramientas que usé para revisar los archivos decía que todo estaba perfecto; otra detectaba filas inválidas. Fue esa diferencia entre las dos la que me llevó a encontrarlo.</p><p><b>Solución:</b> reemplazar ese carácter suelto por un espacio.</p></div></li>
+<li class="issue rv"><h3 class="issue-t"><span class="meta">Problema</span>Registros cortados de origen</h3><div><p>171 registros de exportación y 38 de importación venían incompletos: solo tenían 63 de sus 84 campos.</p><p><b>Solución:</b> antes de tocarlos verifiqué que el corte estuviera al final de la fila, sin desordenar las columnas anteriores. Después recuperé el valor perdido de forma exacta: el total de la declaración menos la suma del resto de sus productos.</p></div></li>
+<li class="issue rv"><h3 class="issue-t"><span class="meta">Problema</span>Un mismo código, varios nombres</h3><div><p>El mismo país aparecía como <code>ESPAÃ?A</code> y como <code>ESPANA</code>, y 137 de los 199 códigos de puerto tenían más de un nombre.</p><p><b>Solución:</b> identificar siempre por código y tomar los nombres de la tabla oficial.</p></div></li>
+<li class="issue rv"><h3 class="issue-t"><span class="meta">Problema</span>Ceros a la izquierda que aparecían y desaparecían</h3><div><p>Un mismo código figuraba como <code>03</code> en la tabla oficial y como <code>3</code> en los datos, así que los cruces no calzaban.</p><p><b>Solución:</b> unificar el formato, salvo en el código del producto, donde el cero sí tiene significado (<code>03</code> son pescados).</p></div></li>
+<li class="issue rv"><h3 class="issue-t"><span class="meta">Problema</span>Operaciones que no son bienes</h3><div><p>Las exportaciones incluían servicios y ventas a barcos extranjeros. El registro más grande de toda la base, US$ 484 millones, era combustible vendido a naves.</p><p><b>Solución:</b> separarlos y dejarlos fuera del análisis de bienes. Los 71 registros con valor negativo, en cambio, los mantuve: son correcciones de declaraciones anteriores y sirven para que los totales cuadren.</p></div></li>
+</ul>
+<div class="prose">
+<p class="rv">Al final no perdí ninguna fila ni quedó ningún valor sin convertir, y en más del 99,9% de las declaraciones la suma de los productos coincidía con el total declarado. Con los datos ya ordenados armé la base sobre la que trabajé el resto del proyecto: una tabla con <strong>cuánto comerció Chile de cada producto con cada país, mes a mes</strong>.</p>
+<p class="rv">Si lo mido en líneas de código, cerca del 45% del proyecto se fue en obtener, revisar y limpiar los datos. Y esa cifra se queda corta en tiempo: los problemas más difíciles, como el carácter invisible o los números de empresa, se resolvieron en pocas líneas, pero me costó bastante encontrarlos.</p>
+</div>
+</section>
+
+<!-- 06 · Decisiones -->
+<section class="ch" id="decisiones" aria-labelledby="h-decisiones">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">06 · Problemas y decisiones</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-decisiones">Un proceso que <em>no fue lineal</em></h2>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Mirando hacia atrás, lo que mejor describe este proyecto no es la lista de técnicas que usé, sino las veces que un descubrimiento me obligó a volver atrás y cambiar algo. Estas fueron las más importantes:</p>
+</div>
+<ul class="route">
+<li class="rv" style="--c: #B07A2E"><span class="meta">Al conocer los datos</span><p>Con 8 meses no podía estudiar patrones anuales, así que amplié el período a 2024–2026.</p></li>
+<li class="rv" style="--c: #B07A2E"><span class="meta">Al conocer los datos</span><p>Los números de empresa cambiaban cada mes. Dejé de lado las preguntas por empresa y pasé a trabajar por producto y país.</p></li>
+<li class="rv" style="--c: #2D4B6E"><span class="meta">Al construir el modelo</span><p>Mi primer modelo de pronóstico se equivocaba mucho con los flujos más grandes. Cambié el enfoque: en vez de predecir montos en dólares, predije cuánto cambiaría cada flujo respecto de su nivel reciente.</p></li>
+<li class="rv" style="--c: #2D4B6E"><span class="meta">Al evaluar el modelo</span><p>En un momento el modelo perdía contra un simple promedio de los últimos tres meses. Cambié la forma en que medía sus errores y agregué un segundo modelo para estimar los totales.</p></li>
+<li class="rv" style="--c: #3F7C74"><span class="meta">Al evaluar el modelo</span><p>Una prueba automática detectó que el modelo estaba usando, sin querer, información del futuro. Lo corregí y volví a calcular todos los resultados.</p></li>
+<li class="rv" style="--c: #3F7C74"><span class="meta">Al simular su uso real</span><p>Al probar el sistema de alertas en un período tranquilo saltaron alarmas falsas, que me revelaron cinco errores en mi propio diseño. Los corregí antes de mirar 2026.</p></li>
+<li class="rv" style="--c: #B4566B"><span class="meta">Al terminar</span><p>Mis modelos predecían bien, pero predecir no es lo mismo que medir un impacto. Por eso volví a empezar el ciclo, primero con inferencia causal (métodos para medir el efecto real de una causa) y después con un experimento.</p></li>
+</ul>
+
+<div class="beat">
+<div class="hd"><div><h3 class="sub-t rv">Decisiones donde <em>ninguna opción era gratis</em></h3></div></div>
+<div class="prose">
+<p class="rv">Algunas decisiones no tenían una respuesta obvia: cualquier camino tenía un costo. Un buen ejemplo es qué hacer con los registros cortados que mencioné antes:</p>
+</div>
+<ul class="issues">
+<li class="issue rv"><h4 class="issue-t"><span class="meta">Opción</span>Eliminarlos</h4><div><p>Era lo más simple, pero habría dejado los totales por debajo de lo real, y podía sesgar el análisis si esos registros no estaban repartidos al azar.</p></div></li>
+<li class="issue rv"><h4 class="issue-t"><span class="meta">Opción</span>Rellenarlos con un promedio</h4><div><p>Es la solución habitual, pero inventa valores e ignora información que ya estaba en los datos.</p></div></li>
+<li class="issue pick rv"><h4 class="issue-t"><span class="meta">La que elegí</span>Reconstruirlos con el total de la declaración</h4><div><p>Es exacta, no una estimación. Solo funciona cuando falta un producto por declaración, y ese producto queda marcado como desconocido. Así recuperé 169 registros.</p></div></li>
+</ul>
+<div class="prose">
+<p class="rv">También aprendí a desconfiar de mis propias conclusiones. En un primer borrador escribí que el mercado de empresas exportadoras estaba “moderadamente concentrado”, pero cuando volví a mirar el índice HHI, que mide si una sola empresa domina el mercado, vi que decía justo lo contrario. Me pasó algo parecido cuando afirmé que el modelo no tenía sobreajuste (es decir, que no se había aprendido de memoria los datos de entrenamiento) y cuando señalé cuál era su variable más importante: en ambos casos los números contaban otra historia. Desde entonces no doy una conclusión por cerrada hasta revisarla contra la evidencia.</p>
+</div>
+</div>
+</section>
+
+<!-- 07 · Análisis exploratorio -->
+<section class="ch" id="exploracion" aria-labelledby="h-exploracion">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">07 · Análisis exploratorio</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-exploracion">Lo que los datos <em>me fueron mostrando</em></h2>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Con los datos limpios dediqué un buen tiempo a explorarlos antes de construir cualquier modelo. Quería entender cómo se comportaban, porque eso iba a decidir qué tenía sentido modelar y cómo hacerlo.</p>
+<p class="rv">Lo primero que saltaba a la vista era 2026: entre enero y agosto, las exportaciones de bienes crecieron <strong>26%</strong>, mientras las importaciones subían apenas 4,5%. Un salto así necesitaba una explicación, y buscarla se convirtió en mi primera pregunta. La respuesta está más abajo, en los hallazgos.</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gP)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/serie-mensual.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/serie-mensual.webp" width="1400" height="648" loading="lazy" decoding="async" alt="Gráfico de líneas del comercio exterior de bienes de Chile por mes, de enero de 2024 a agosto de 2026. Las exportaciones saltan en 2026, con un máximo de unos 12.000 millones de dólares en enero; las importaciones crecen de forma gradual."></a></div>
+<figcaption class="cap">Comercio exterior de bienes de Chile mes a mes, en millones de dólares. Las exportaciones se miden en el puerto de salida (FOB) y las importaciones incluyen flete y seguro (CIF). <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/01_eda.ipynb" target="_blank" rel="noopener">Notebook 1 EDA</a></span></figcaption>
+</figure>
+
+<div class="beat">
+<div class="hd">
+<div><p class="meta sub-k rv">Estacionalidad</p><h3 class="sub-t rv" style="animation-delay: .08s">La fruta <em>tiene calendario</em></h3></div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 96px; --ar: .82">
+<div class="dk appear" style="left: 0; top: 0; width: 100%; animation-delay: .3s"><div class="swing">
+<svg viewBox="0 0 90 110" focusable="false" style="opacity: 0.92">
+<g fill="none" stroke="#2F6B66" stroke-opacity=".7" stroke-width="1.4" stroke-linecap="round"><path d="M46 8 C44 28 36 52 28 69"></path><path d="M46 8 C50 32 58 54 62 76"></path></g>
+<path filter="url(#wcN)" fill="url(#gV)" d="M47 9 C55 0 71 0 79 8 C70 15 56 16 47 9 Z"></path>
+<path fill="none" stroke="#2F6B66" stroke-opacity=".5" stroke-width=".6" d="M48 9 C58 7 68 7 77 8"></path>
+<g filter="url(#wcN)"><circle fill="url(#gR)" cx="27" cy="82" r="14"></circle><circle fill="url(#gR)" cx="62" cy="89" r="13"></circle></g>
+<g fill="none" stroke="#8E2836" stroke-opacity=".5" stroke-width=".7"><circle cx="27" cy="82" r="14"></circle><circle cx="62" cy="89" r="13"></circle></g>
+<g fill="#fff" fill-opacity=".55"><ellipse cx="21" cy="76" rx="3" ry="4.4" transform="rotate(-30 21 76)"></ellipse><ellipse cx="57" cy="83" rx="2.6" ry="4" transform="rotate(-30 57 83)"></ellipse></g>
+</svg>
+</div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Luego comparé cada sector con su propio valor del mes anterior y del mismo mes del año anterior. Aparecieron dos comportamientos muy distintos. Los sectores <strong>estacionales</strong>, como la fruta y el vino, se parecen más a sí mismos un año atrás, porque siguen el ritmo de las cosechas. Los <strong>persistentes</strong>, como el litio y los minerales, se parecen más al mes anterior, porque los mueven los precios y la producción, no el calendario. El cobre refinado, la celulosa y la madera resultaron simplemente irregulares.</p>
+</div>
+<figure class="plate plate-n rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gM)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/estacionalidad-fruta.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/estacionalidad-fruta.webp" width="1226" height="662" loading="lazy" decoding="async" alt="Exportaciones de fruta por mes del año para 2024, 2025 y 2026. Todas las curvas tienen un máximo en diciembre y enero, la temporada de cerezas, que triplica al resto del año."></a></div>
+<figcaption class="cap">Exportaciones de fruta por mes del año, en millones de dólares. El peak de diciembre y enero corresponde a la temporada de cerezas. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/01_eda.ipynb" target="_blank" rel="noopener">Notebook 1 EDA</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Esto me llevó a una decisión: cualquier modelo tendría que compararse contra dos referencias simples, repetir el valor del mes anterior y repetir el del mismo mes del año pasado. Si no les ganaba a ambas, no valía la pena.</p>
+</div>
+</div>
+
+<div class="beat">
+<div class="hd"><div><p class="meta sub-k rv">Intermitencia</p><h3 class="sub-t rv" style="animation-delay: .08s">La mayoría de los flujos <em>son esporádicos</em></h3></div></div>
+<div class="prose">
+<p class="rv">El último descubrimiento de esta etapa fue el que terminó de definir los modelos. Cada combinación de producto y país (por ejemplo, cerezas a China) forma una serie mes a mes, y la mayoría casi nunca tiene comercio:</p>
+</div>
+<figure class="viz rv">
+<p class="viz-t">Pocas series concentran casi todo el valor</p>
+<p class="viz-s">Combinaciones de producto y país en exportaciones, según cuántos de los 32 meses tuvieron comercio.</p>
+<div class="sb"><span class="meta sb-l">Número de series</span><div class="sb-bar"><span class="sb-seg c-o" style="--v: 57%">57%</span><span class="sb-seg c-g" style="--v: 40.2%"></span><span class="sb-seg c-p" style="--v: 2.8%"></span></div></div>
+<div class="sb"><span class="meta sb-l">Valor exportado</span><div class="sb-bar"><span class="sb-seg c-o" style="--v: .7%"></span><span class="sb-seg c-g" style="--v: 27.3%"></span><span class="sb-seg c-p" style="--v: 72%">72%</span></div></div>
+<ul class="lg">
+<li><i class="c-o"></i><span><b>Comercio en 3 meses o menos:</b> 57% de las series, pero solo 0,7% del valor.</span></li>
+<li><i class="c-p"></i><span><b>Comercio los 32 meses:</b> 2,8% de las series, que concentran el 72% del valor.</span></li>
+<li><i class="c-g"></i><span>El resto de las series.</span></li>
+</ul>
+<figcaption class="cap"><span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/01_eda.ipynb" target="_blank" rel="noopener">Notebook 1 EDA</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">En las importaciones pasa lo mismo: el 7,8% de las series concentra el 75% del valor. No tenía sentido usar un solo modelo para todo, así que separé el problema en dos. Una <strong>regresión</strong> (un modelo que estima una cantidad) para predecir cuánto se comerciará en los flujos regulares, donde está casi todo el valor. Y una <strong>clasificación</strong> (un modelo que estima si algo va a ocurrir o no) para predecir si habrá comercio el mes siguiente en los flujos esporádicos, que la mayoría de los meses valen cero.</p>
+<p class="rv">También vi que los montos van desde unos pocos dólares hasta cientos de millones. Por eso decidí trabajar en escala logarítmica (una escala que comprime esas diferencias de tamaño) y no eliminar los valores extremos: no eran errores, sino embarques reales de cobre, combustible o minerales.</p>
+</div>
+</div>
+</section>
+
+<!-- 08 · Hallazgos -->
+<section class="ch" id="hallazgos" aria-labelledby="h-hallazgos">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">08 · Principales hallazgos</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-hallazgos">Lo que <em>encontré</em></h2>
+</div>
+</div>
+<div class="prose">
+<p class="rv">A partir de esa exploración construí varias piezas: una red de productos, modelos de pronóstico y un sistema de alertas. Al final sumé un análisis del efecto de los aranceles y un experimento. Estos son los resultados, en el orden de las preguntas que me planteé al comienzo.</p>
+</div>
+
+<div class="beat" id="pregunta-1">
+<div class="hd">
+<div><p class="meta sub-k rv">Pregunta 1</p><h3 class="sub-t rv" style="animation-delay: .08s">¿Más cantidad o <em>mejores precios</em>?</h3></div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 118px; --ar: 1.1">
+<div class="dk appear" style="left: 0; top: 0; width: 100%; animation-delay: .3s"><div class="hover">
+<svg viewBox="0 0 110 100" focusable="false" style="opacity: 0.92">
+<g filter="url(#wcN)">
+<path fill="url(#gCu)" d="M40 9 H50 V17 H40 Z M76 9 H86 V17 H76 Z"></path>
+<rect fill="url(#gCu)" x="34" y="16" width="56" height="62" rx="2"></rect>
+<path fill="url(#gCu)" d="M20 21 H30 V29 H20 Z M56 21 H66 V29 H56 Z"></path>
+<rect fill="url(#gCu)" x="14" y="28" width="56" height="62" rx="2"></rect>
+</g>
+<g fill="none" stroke="#8E4A22" stroke-opacity=".55" stroke-width=".7"><rect x="34" y="16" width="56" height="62" rx="2"></rect><rect x="14" y="28" width="56" height="62" rx="2"></rect><path d="M40 16 V9 H50 V16 M76 16 V9 H86 V16 M20 28 V21 H30 V28 M56 28 V21 H66 V28"></path></g>
+<path d="M22 80 L58 36" stroke="#fff" stroke-opacity=".45" stroke-width="2.2" stroke-linecap="round"></path>
+<path d="M32 84 L62 48" stroke="#fff" stroke-opacity=".25" stroke-width="1.2" stroke-linecap="round"></path>
+<text x="20" y="42" font-family="Geist Mono, monospace" font-size="8" fill="#8E4A22" fill-opacity=".7">Cu</text>
+<path class="halo" fill="#C38A3A" d="M98 30 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6z"></path>
+<path class="halo" style="animation-delay: 4.2s" fill="#C38A3A" d="M8 14 l1.2 3 3 1.2 -3 1.2 -1.2 3 -1.2 -3 -3 -1.2 3 -1.2z"></path>
+</svg>
+</div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">La primera pregunta era qué explicaba la evolución reciente del comercio chileno y qué tan concentrado estaba. Empecé por el salto de 2026, separando el aumento por tipo de producto. Casi todo venía de los minerales, el cobre, la química inorgánica (donde está el litio, que creció 106%) y los metales preciosos (112%). La fruta, la celulosa, la madera y el vino, en cambio, cayeron.</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gM)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/contribucion-crecimiento.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/contribucion-crecimiento.webp" width="1400" height="715" loading="lazy" decoding="async" alt="Barras horizontales con cuánto cambiaron las exportaciones de cada tipo de producto entre enero y agosto de 2026 frente al mismo período de 2025. Los minerales suben 8.787 millones de dólares, el cobre 3.909, la química inorgánica 3.311 y los metales preciosos 2.062; la fruta, la celulosa, la madera, la carne y las conservas caen."></a></div>
+<figcaption class="cap">Cuánto cambiaron las exportaciones de cada tipo de producto entre enero y agosto de 2026, comparado con el mismo período de 2025, en millones de dólares. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/01_eda.ipynb" target="_blank" rel="noopener">Notebook 1 EDA</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Para saber si Chile estaba vendiendo más cobre o si el cobre simplemente valía más, miré los cátodos de cobre por separado: el precio por kilo y la cantidad exportada. El resultado fue claro: el precio por kilo subió cerca de <strong>50%</strong> respecto del promedio de 2024, mientras la cantidad bajó.</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gCu)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/cobre-precio-volumen.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/cobre-precio-volumen.webp" width="1400" height="612" loading="lazy" decoding="async" alt="Precio por kilo y cantidad exportada de cátodos de cobre, con el promedio de 2024 igual a 100. El precio sube hasta cerca de 150 en 2026, mientras la cantidad, suavizada a tres meses, baja hasta alrededor de 80."></a></div>
+<figcaption class="cap">Precio por kilo y cantidad exportada de cátodos de cobre, como índice (promedio de 2024 = 100). La cantidad se muestra suavizada a tres meses. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/01_eda.ipynb" target="_blank" rel="noopener">Notebook 1 EDA</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv"><strong>El crecimiento de 2026 es de precios, no de volumen.</strong> Ese hallazgo tuvo consecuencias en todo lo que vino después. El precio de las materias primas se fija en los mercados internacionales y no aparece en mis datos, así que cualquier modelo entrenado con 2024 y 2025 iba a tender a quedarse corto en 2026. Al mismo tiempo, me dio un caso real de cambio brusco para poner a prueba el sistema de alertas más adelante.</p>
+</div>
+<h4 class="mini-t rv">Pocos productos, pocos mercados</h4>
+<div class="prose">
+<p class="rv">La segunda parte de la pregunta era la concentración. Las exportaciones chilenas están mucho más concentradas que las importaciones: <strong>27 productos explican el 80% del valor exportado</strong>, mientras que en las importaciones se necesitan 443. Y China recibe el 37% de todo lo que Chile exporta.</p>
+</div>
+<figure class="plate plate-n rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gV)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/concentracion.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/concentracion.webp" width="1222" height="721" loading="lazy" decoding="async" alt="Curvas del valor acumulado según el número de productos. En exportaciones, 27 productos acumulan el 80% del valor; en importaciones se necesitan 443."></a></div>
+<figcaption class="cap">Porcentaje acumulado del valor según el número de productos, ordenados de mayor a menor. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/01_eda.ipynb" target="_blank" rel="noopener">Notebook 1 EDA</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Con las empresas encontré un matiz interesante. Las 10 más grandes generan cerca del 48% del valor exportado cada mes. Aun así, el índice HHI (que mide cuánto domina el mercado una sola empresa) es bajo, entre 450 y 580, porque ninguna domina por sí sola y hay unas 2.900 exportadoras más pequeñas. Las dos cifras miden cosas distintas, así que reporté ambas: quedarme con una sola me habría llevado a una conclusión equivocada.</p>
+</div>
+</div>
+
+<div class="beat" id="pregunta-2">
+<div class="hd">
+<div><p class="meta sub-k rv">Pregunta 2</p><h3 class="sub-t rv" style="animation-delay: .08s">Una red de <em>capacidades productivas</em></h3></div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 140px; --ar: 1.25">
+<div class="dk appear" style="left: 0; top: 4%; width: 72%; animation-delay: .3s"><div class="swim">
+<svg viewBox="0 0 60 30" focusable="false" style="opacity: 0.9">
+<g filter="url(#wcN)">
+<path fill="url(#gS)" d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15 Z"></path>
+<path fill="url(#gS)" d="M19 15 L4 6 C7 12 7 18 4 24 Z"></path>
+<path fill="url(#gM)" d="M40 9 C36 4 30 4 28 7 C32 8 36 9 40 9 Z"></path>
+</g>
+<g fill="none" stroke="#C56A4A" stroke-opacity=".6" stroke-width=".7" stroke-linecap="round"><path d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15"></path><path d="M44 10 C41 14 41 17 44 20"></path></g>
+<g fill="#C56A4A" fill-opacity=".45"><circle cx="30" cy="12" r=".7"></circle><circle cx="34" cy="10.8" r=".7"></circle><circle cx="38" cy="12.2" r=".7"></circle><circle cx="32" cy="14.6" r=".7"></circle></g>
+<circle cx="48.5" cy="13.5" r=".9" fill="#1B1E23"></circle>
+</svg>
+</div></div>
+<div class="dk appear flip" style="left: 40%; top: 44%; width: 50%; animation-delay: .6s"><div class="swim swim2">
+<svg viewBox="0 0 60 30" focusable="false" style="opacity: 0.9">
+<g filter="url(#wcN)">
+<path fill="url(#gS)" d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15 Z"></path>
+<path fill="url(#gS)" d="M19 15 L4 6 C7 12 7 18 4 24 Z"></path>
+</g>
+<g fill="none" stroke="#C56A4A" stroke-opacity=".6" stroke-width=".7" stroke-linecap="round"><path d="M54 15 C46 5 28 4 18 15 C28 26 46 25 54 15"></path><path d="M44 10 C41 14 41 17 44 20"></path></g>
+<circle cx="48.5" cy="13.5" r=".9" fill="#1B1E23"></circle>
+</svg>
+</div></div>
+<svg class="dk" style="left: 76%; top: 0; width: 18%" viewBox="0 0 20 40" focusable="false"><g fill="none" stroke="#2D4B6E" stroke-opacity=".45" stroke-width=".7"><circle class="bub" cx="8" cy="30" r="2"></circle><circle class="bub" style="animation-delay: 2.3s" cx="13" cy="22" r="1.3"></circle><circle class="bub" style="animation-delay: 4.6s" cx="6" cy="16" r="1.6"></circle></g></svg>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Para la segunda pregunta construí un grafo, que es una forma de representar relaciones: puntos (nodos) unidos por líneas. Al principio tenía dudas sobre qué debían ser los nodos, si países o productos. Descarté varias opciones: una red de Chile con sus países compradores era solo una estrella que no aportaba más que una tabla, y una red de empresas era imposible con números que cambiaban cada mes. Me decidí por los productos, porque lo que me interesaba era qué capacidades comparte la economía chilena.</p>
+<p class="rv">En mi red, dos productos se conectan cuando <strong>los exportan las mismas empresas</strong> en el mismo mes. Me encontré con que unos pocos distribuidores, que exportan decenas de productos distintos, generaban más de la mitad de las conexiones (el 0,9% de las empresas creaba el 54% de los vínculos). Para que no dominaran la red, les di menos peso a sus vínculos. Después usé el algoritmo de Louvain, que agrupa los productos que están más conectados entre sí, y revisé que los grupos se mantuvieran al repetirlo varias veces.</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gV)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/red-capacidades.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/red-capacidades.webp" width="1400" height="1131" loading="lazy" decoding="async" alt="Red de productos exportados por Chile en 2025. Cada punto es un producto, coloreado según su grupo: gran minería con el concentrado de cobre como punto más grande, fruticultura con cerezas frescas, salmonicultura con filete de salmón, salares con carbonato de litio, celulosa, química con yodo, madera y agroindustria."></a></div>
+<figcaption class="cap">Red de productos exportados por Chile en 2025. Cada punto es un producto y su tamaño refleja el valor exportado; el color indica el grupo al que pertenece. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/02_grafo.ipynb" target="_blank" rel="noopener">Notebook 2 Grafo</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">No le di al algoritmo ninguna categoría, y aun así aparecieron grupos que tienen todo el sentido: el cobre junto al <strong>oro</strong>, que se obtiene en la misma minería; el <strong>litio con el nitrato de potasio</strong>, que salen de los mismos salares; la <strong>celulosa con la cartulina</strong>. También aparecieron productos puente entre grupos, como el <strong>alimento para peces</strong>, que une la agroindustria con la salmonicultura.</p>
+</div>
+<blockquote class="thought rv">No quería que el grafo fuera solo una visualización bonita, así que le exigí una prueba.</blockquote>
+<div class="prose">
+<p class="rv">La pregunta fue simple: ¿la red ayuda a anticipar a qué países empezará Chile a venderles productos que antes no les vendía? La construí con datos de 2025 y la comparé con lo que realmente pasó en 2026, información que no había usado. De las 100 combinaciones de producto y país mejor evaluadas que Chile no exportaba en 2025, <strong>el 31% se exportó en 2026</strong>. Sin la información de la red, la cifra bajaba a 25%, y al azar habría sido cerca de 1%.</p>
+</div>
+<figure class="plate plate-n rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gO)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/quien-compra.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/quien-compra.webp" width="1400" height="1720" loading="lazy" decoding="async" alt="Gráfico que une nueve grupos de productos chilenos con trece países compradores en 2025. La gran minería, con 60,3 mil millones de dólares, tiene la línea más gruesa, hacia China; le siguen la fruticultura fresca con 9,9 mil millones y la salmonicultura con 8,9 mil millones."></a></div>
+<figcaption class="cap">Qué le compra cada país a Chile (2025). Cada línea une un grupo de productos con un país comprador; mientras más gruesa, más dinero mueve. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/02_grafo.ipynb" target="_blank" rel="noopener">Notebook 2 Grafo</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Agrupar productos también muestra algo que un ranking de países esconde: la relación con Asia es casi solo minera, Suiza compra prácticamente solo oro para sus refinerías y México es el comprador más diversificado. Me quedó claro que la diversificación no depende solo de cuántos países compran, sino de cuántos tipos de producto sostienen cada relación.</p>
+</div>
+</div>
+
+<div class="beat" id="pregunta-3">
+<div class="hd">
+<div><p class="meta sub-k rv">Pregunta 3</p><h3 class="sub-t rv" style="animation-delay: .08s">Pronosticar <em>los próximos meses</em></h3></div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 112px; --ar: 1.36">
+<div class="dk appear" style="left: 0; top: 0; width: 100%; animation-delay: .3s"><div class="hover"><svg viewBox="0 0 90 66" focusable="false" style="opacity: 0.85">
+<path filter="url(#wcN)" fill="url(#gP)" opacity=".8" d="M55 47 C58 53 58 60 56 66 L51 66 C52 60 51 54 48 48 Z"></path>
+<path filter="url(#wcN)" fill="url(#gM)" d="M60 46 C65 43 73 44 77 48 C79 53 75 57 69 57 C63 57 58 52 60 46 Z"></path>
+<path filter="url(#wcN)" fill="url(#gM)" d="M10 34 C6 22 14 10 28 8 C36 3 50 3 60 7 C72 8 82 16 84 28 C86 36 82 42 76 44 C72 48 64 49 58 47 C52 50 44 50 38 47 C32 50 22 50 16 46 C11 43 10 39 10 34 Z"></path>
+<g fill="none" stroke="#9E4A5D" stroke-opacity=".5" stroke-width=".8" stroke-linecap="round">
+<path d="M10 34 C6 22 14 10 28 8 C36 3 50 3 60 7 C72 8 82 16 84 28 C86 36 82 42 76 44 C72 48 64 49 58 47 C52 50 44 50 38 47 C32 50 22 50 16 46 C11 43 10 39 10 34"></path>
+<path d="M60 46 C65 43 73 44 77 48 C79 53 75 57 69 57 C63 57 58 52 60 46"></path>
+<path d="M30 40 C40 34 50 34 63 37"></path>
+<path d="M50 5 C48 13 52 19 48 30"></path>
+<path d="M20 17 C26 21 22 27 28 31"></path>
+<path d="M36 8 C34 16 40 20 36 29"></path>
+<path d="M62 9 C58 15 64 21 60 30"></path>
+<path d="M73 18 C69 24 75 28 71 35"></path>
+<path d="M18 42 C26 40 32 44 40 42"></path>
+<path d="M42 41 C48 39 52 42 58 41"></path>
+<path d="M62 50 C66 49 70 50 75 51"></path>
+<path d="M63 53.5 C66 53 70 53.5 73 54.5"></path>
+</g>
+<g stroke="#2D4B6E" stroke-opacity=".45" stroke-width=".6"><path d="M24 24 L42 20 L66 26"></path></g>
+<g fill="#2D4B6E"><circle cx="24" cy="24" r="1.4"></circle><circle cx="42" cy="20" r="1.4"></circle><circle cx="66" cy="26" r="1.4"></circle></g>
+</svg></div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Para los flujos regulares, unas 16 mil combinaciones de producto y país, entrené un modelo global con LightGBM (un algoritmo que combina muchos árboles de decisión). Que sea “global” significa que un solo modelo aprende de todas las combinaciones a la vez, en lugar de tener un modelo para cada una.</p>
+<p class="rv">Para evaluarlo de forma honesta usé una validación <strong>walk-forward</strong>: simulé que avanzaba mes a mes y, en cada mes, el modelo solo podía usar la información disponible hasta esa fecha, como pasaría en la realidad. Usé julio a diciembre de 2025 para tomar decisiones y dejé enero a agosto de 2026 como prueba final, que miré una sola vez.</p>
+<p class="rv">El primer intento perdía contra un simple promedio de los últimos tres meses. Lo que me sacó de ahí no fue afinar los parámetros del modelo, sino cambiar la forma de plantear el problema:</p>
+</div>
+<figure class="viz rv">
+<p class="viz-t">Plantear bien el problema importó más que afinar el modelo</p>
+<p class="viz-s">Error ponderado por valor (WAPE) de cada intento: cuánto se equivoca en dólares, dando más peso a los flujos grandes. Exportaciones, pronóstico a un mes, en el período usado para tomar decisiones. Menor es mejor.</p>
+<div class="hb"><span class="hb-l">1 · Error cuadrático, en escala logarítmica</span><span class="hb-t"><span class="hb-f c-m" style="--v: 98.3%"></span><span class="hb-mark" style="--v: 52.7%"></span></span><span class="hb-v">0,590</span></div>
+<div class="hb"><span class="hb-l">2 · Error absoluto, en escala logarítmica</span><span class="hb-t"><span class="hb-f c-o" style="--v: 92.7%; animation-delay: .45s"></span><span class="hb-mark" style="--v: 52.7%"></span></span><span class="hb-v">0,556</span></div>
+<div class="hb"><span class="hb-l">3 · Error absoluto, prediciendo el cambio relativo</span><span class="hb-t"><span class="hb-f c-v" style="--v: 51.8%; animation-delay: .65s"></span><span class="hb-mark" style="--v: 52.7%"></span></span><span class="hb-v">0,311</span></div>
+<div class="hb"><span class="hb-l">Referencia: promedio de los últimos 3 meses</span><span class="hb-t"><span class="hb-f c-g" style="--v: 52.7%; animation-delay: .85s"></span></span><span class="hb-v">0,316</span></div>
+<figcaption class="cap">La línea punteada marca la referencia. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/03_regresion.ipynb" target="_blank" rel="noopener">Notebook 3 Regresión</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Primero cambié la función de pérdida, que es la forma en que el modelo mide sus errores mientras aprende. La original apuntaba al promedio (en escala logarítmica), y los meses sin comercio la arrastraban hacia abajo; la nueva apunta a la mediana. Mejoró, pero el error seguía alto: el modelo mezclaba las pocas series gigantes de cobre con series pequeñas y achicaba sus predicciones. La solución fue no predecir dólares directamente, sino <strong>cuánto subiría o bajaría cada flujo respecto de su nivel reciente</strong>. Afinar los parámetros, en comparación, movía el error apenas en ±0,01.</p>
+<p class="rv">En paralelo escribí pruebas automáticas para detectar fugas de información, que ocurren cuando un modelo usa sin querer datos del futuro y parece mejor de lo que es. Las pruebas alteran todos los datos posteriores a una fecha y verifican que nada de lo que el modelo usa cambie. Las escribí pensando que no encontrarían nada, y <strong>una encontró una fuga real</strong>: el ranking de los 40 países principales se estaba calculando con meses futuros. Lo corregí y volví a calcular todos los resultados.</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gP)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/wape-horizonte.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/wape-horizonte.webp" width="1400" height="493" loading="lazy" decoding="async" alt="Dos paneles con el error de cada modelo en la prueba de enero a agosto de 2026, pronosticando a 1, 2 y 3 meses. En exportaciones e importaciones, el modelo principal tiene el menor error en los tres plazos, por debajo de un segundo modelo pensado para los totales y de las referencias simples."></a></div>
+<figcaption class="cap">Error de cada modelo en la prueba final (enero a agosto de 2026), pronosticando a 1, 2 y 3 meses. Menor es mejor. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/03_regresion.ipynb" target="_blank" rel="noopener">Notebook 3 Regresión</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">En la prueba final, el modelo superó a todas las referencias simples: su error fue entre <strong>11% y 14% menor</strong> que el de la mejor de ellas. Ganó a uno, dos y tres meses, en exportaciones y en importaciones, y en cada uno de los 8 meses evaluados. Donde casi no mejora es en las materias primas, y creo que es lo esperable: su precio depende de factores que no están en estos datos.</p>
+<p class="rv">Para los flujos esporádicos entrené un clasificador que estima la probabilidad de que haya comercio el mes siguiente. Mejoró en 19% (exportaciones) y 11% (importaciones) a la mejor referencia, medido con la average precision (una métrica que indica qué tan bien el modelo pone primero los casos que sí ocurren). Además, sus probabilidades resultaron bien calibradas: cuando dice 30%, ocurre cerca del 30% de las veces. Esperaba que la red de productos aportara más, pero su aporte se concentra en los flujos que casi no tienen historia: +8% y +12% en los que tuvieron comercio un solo mes. Tiene sentido: cuando no hay pasado propio, lo que se sabe de productos parecidos es lo único que queda.</p>
+<p class="rv">También tenía dudas sobre cómo dividir los datos entre entrenamiento, validación y prueba (los meses con que el modelo aprende, con los que tomo decisiones y con los que lo evalúo al final). En muchos proyectos se reparten al azar según porcentajes (50/20/30 o 40/20/40), así que comparé esa forma con divisiones por orden de fecha. Repartir al azar contaminó la validación: el modelo terminaba eligiendo entre 1,8 y 2,8 veces más árboles de los que necesitaba. Mi conclusión fue que, cuando los datos avanzan en el tiempo, importa más qué meses quedan para la prueba que el porcentaje exacto de cada parte.</p>
+</div>
+</div>
+
+<div class="beat" id="pregunta-4">
+<div class="hd"><div><p class="meta sub-k rv">Pregunta 4</p><h3 class="sub-t rv" style="animation-delay: .08s">Saber cuándo <em>dejar de confiar</em> en el modelo</h3></div></div>
+<div class="prose">
+<p class="rv">Para la cuarta pregunta simulé que el modelo estaba en uso: lo congelé con datos hasta diciembre de 2025 y lo dejé trabajar durante 2026. Mientras tanto, lo vigilaba un sistema de alertas en cuatro niveles: calidad de los datos, cambios en lo que entra al modelo, cambios en lo que se intenta predecir y desempeño del propio modelo. A este tipo de vigilancia se le llama monitoreo de drift, que es como se conoce el cambio de los datos en el tiempo.</p>
+<p class="rv">Lo que más me sirvió fue ajustar las alertas primero en un <strong>período de control</strong>, una etapa tranquila sin eventos conocidos, antes de mirar 2026. Mi primera versión daba alarmas donde no pasaba nada, y eso me llevó a encontrar cinco errores de diseño, como umbrales mal ajustados o una alerta de volumen que no consideraba que enero siempre es alto por la temporada de fruta.</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gV)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/panel-drift.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/panel-drift.webp" width="1400" height="1106" loading="lazy" decoding="async" alt="Panel de alertas de exportaciones en tres filas: precios, error del modelo y desvío del total pronosticado, para el período de control de julio a diciembre de 2025 y para 2026. Los precios de las materias primas superan el umbral de alerta de 20% desde marzo de 2026; el error del modelo congelado solo sale de su rango normal en enero de 2026 y se mantiene cerca del de un modelo actualizado cada mes."></a></div>
+<figcaption class="cap">Panel de alertas de exportaciones: a la izquierda, el período de control; a la derecha, 2026. Arriba, los precios de las materias primas; al medio, el error del modelo congelado frente a uno actualizado cada mes; abajo, cuánto se desvía el total pronosticado. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/06_drift_monitoring.ipynb" target="_blank" rel="noopener">Notebook 6 Monitoreo de drift</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Después de corregirlos, el sistema no dio falsas alarmas, detectó el alza de precios de 2026 y también el único mes en que el modelo realmente empeoró, enero. Me llamó la atención que las métricas que cuentan series no vieran el cambio, porque afectaba a pocas series gigantes; solo lo detectaron las que pesan cada serie según su valor en dólares. Y el modelo congelado se recuperó solo, sin reentrenarlo, gracias a la decisión de predecir cambios relativos que había tomado por otro motivo. Aprendí que no todo cambio en los datos obliga a reentrenar un modelo.</p>
+</div>
+</div>
+
+<div class="beat" id="pregunta-5">
+<div class="hd">
+<div><p class="meta sub-k rv">Pregunta 5 · segunda vuelta</p><h3 class="sub-t rv" style="animation-delay: .08s">Los aranceles de EE.UU.: <em>la dosis importa</em></h3></div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 132px; --ar: 1.5">
+<div class="dk appear" style="left: 0; top: 0; width: 100%; animation-delay: .3s"><div class="hover hover2">
+<svg viewBox="0 0 120 80" focusable="false" style="opacity: 0.92">
+<path filter="url(#wcN)" fill="url(#gCu)" opacity=".75" d="M22 22 C40 18 80 18 96 22 L96 58 C80 62 40 62 22 58 Z"></path>
+<g filter="url(#wcN)" fill="none" stroke="#A65A2A" stroke-opacity=".62" stroke-width="1.6">
+<ellipse cx="24" cy="40" rx="6" ry="19"></ellipse><ellipse cx="30.5" cy="40" rx="6" ry="19"></ellipse><ellipse cx="37" cy="40" rx="6" ry="19"></ellipse><ellipse cx="43.5" cy="40" rx="6" ry="19"></ellipse><ellipse cx="50" cy="40" rx="6" ry="19"></ellipse><ellipse cx="56.5" cy="40" rx="6" ry="19"></ellipse><ellipse cx="63" cy="40" rx="6" ry="19"></ellipse><ellipse cx="69.5" cy="40" rx="6" ry="19"></ellipse><ellipse cx="76" cy="40" rx="6" ry="19"></ellipse><ellipse cx="82.5" cy="40" rx="6" ry="19"></ellipse><ellipse cx="89" cy="40" rx="6" ry="19"></ellipse><ellipse cx="95.5" cy="40" rx="6" ry="19"></ellipse>
+</g>
+<path class="draw" style="animation-delay: 1s" pathLength="1" fill="none" stroke="#A65A2A" stroke-opacity=".62" stroke-width="1.4" stroke-linecap="round" d="M101 44 C110 44 113 54 107 60 C101 66 108 74 118 70"></path>
+<path d="M30 27 C50 24 70 24 90 27" stroke="#fff" stroke-opacity=".5" stroke-width="1.4" fill="none" stroke-linecap="round"></path>
+</svg>
+</div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Mis modelos predecían bien, pero predecir no es lo mismo que medir un impacto. Quería saber cuánto cambiaron las exportaciones <em>a causa</em> de los aranceles que EE.UU. impuso en 2025, y para eso no basta con ver si cayeron: hay que compararlas con lo que habría pasado sin el arancel. Como no podía hacer un experimento con aranceles, usé un experimento natural: EE.UU. aplicó el arancel en una fecha conocida y a un solo destino, así que el resto de los países me servía de comparación.</p>
+<p class="rv">Reconstruí la cronología de las medidas y traduje la lista oficial de productos exentos, que viene con los códigos de 8 dígitos de EE.UU., a los 6 dígitos de mis datos. Los casos dudosos los dejé fuera en vez de adivinarlos. También incluí explícitamente los meses sin comercio, porque si el arancel hace desaparecer un flujo, ese cero es justamente el efecto. Con eso estimé una <strong>diferencia en diferencias</strong>: comparé cómo cambiaron las exportaciones de cada producto a EE.UU. con cómo cambiaron las del mismo producto a otros destinos. Para calcularla usé PPML, un método de regresión habitual en comercio porque funciona bien con flujos en cero.</p>
+<p class="rv">Mi plan original era más ambicioso: agregar los productos exentos como un segundo grupo de comparación (una triple diferencia). En teoría era más robusto, pero <strong>no pasó la prueba de tendencias paralelas</strong>, que verifica que antes del arancel los grupos se movieran de forma parecida: los pocos productos exentos que Chile vende a EE.UU. eran demasiado irregulares. Preferí un diseño más simple cuyo supuesto sí se cumplía.</p>
+</div>
+<ul class="duo">
+<li class="rv" style="--c: #2D4B6E"><b>−12,6%</b><span class="meta">Arancel del 10% · abr–jul 2025</span><p>Caída estimada de las exportaciones afectadas a EE.UU. No se distingue de cero: con 95% de confianza, el efecto real está entre −32% y +11%.</p></li>
+<li class="rv" style="--c: #A65A2A; animation-delay: .1s"><b>−92%</b><span class="meta">Arancel del 50% · cobre semielaborado</span><p>Caída de las ventas de alambre de cobre a EE.UU., medida en toneladas, sin que ese volumen se fuera a otros mercados.</p></li>
+</ul>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gP)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/arancel-event-study.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/arancel-event-study.webp" width="1400" height="718" loading="lazy" decoding="async" alt="Diferencia mensual entre las exportaciones de productos afectados a EE.UU. y a otros destinos, con su rango de incertidumbre, de enero de 2024 a agosto de 2026. Entre abril y julio de 2025 la diferencia está entre −5% y −10%, pero su rango incluye el cero; en febrero de 2025 hay un salto por adelanto de embarques."></a></div>
+<figcaption class="cap">Diferencia mes a mes entre las exportaciones de productos afectados a EE.UU. y las de esos mismos productos a otros destinos, con su rango de incertidumbre. La comparación parte en diciembre de 2024. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/07_inferencia_causal.ipynb" target="_blank" rel="noopener">Notebook 7 Inferencia causal</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">Me costó aceptar un resultado nulo para el arancel del 10%, pero lo correcto era informarlo junto con lo que el análisis sí podía detectar: descarta una caída mayor a 29%, pero no una moderada. Además hice una prueba placebo, asignando un arancel ficticio a otros 30 destinos, y la mitad mostró cambios igual de grandes. Tiene sentido: en esos meses casi todos los proveedores de EE.UU. pagaban el mismo 10%, así que los compradores no tenían a quién cambiarse.</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gCu)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/cobre-semielaborado.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/cobre-semielaborado.webp" width="1400" height="596" loading="lazy" decoding="async" alt="Exportaciones chilenas de cobre semielaborado en toneladas por mes hacia EE.UU. y hacia el resto del mundo. El flujo a EE.UU. alcanza un máximo en julio de 2025, entre el anuncio y la vigencia del arancel del 50%, y luego cae prácticamente a cero; el resto del mundo no muestra un aumento sostenido."></a></div>
+<figcaption class="cap">Toneladas mensuales de cobre semielaborado exportadas a EE.UU. y al resto del mundo. El arancel del 50% empezó a regir el 1 de agosto de 2025. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/07_inferencia_causal.ipynb" target="_blank" rel="noopener">Notebook 7 Inferencia causal</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">El arancel del 50% al cobre semielaborado fue otra historia: las ventas a EE.UU. prácticamente desaparecieron, y ese volumen no se fue a otros mercados.</p>
+</div>
+</div>
+
+<div class="beat" id="pregunta-6">
+<div class="hd">
+<div><p class="meta sub-k rv">Pregunta 6 · tercera vuelta</p><h3 class="sub-t rv" style="animation-delay: .08s">Un experimento para decidir <em>qué apoyo escalar</em></h3></div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 116px; --ar: .92">
+<div class="dk appear" style="left: 0; top: 0; width: 100%; animation-delay: .3s"><div class="hover">
+<svg viewBox="0 0 110 120" focusable="false" style="opacity: 0.92">
+<path filter="url(#wcN)" fill="url(#gV)" d="M86 52 C92 44 104 44 108 50 C102 56 92 57 86 52 Z"></path>
+<path fill="none" stroke="#2F6B66" stroke-opacity=".6" stroke-width="1.1" stroke-linecap="round" d="M86 52 C86 55 86 57 86 60"></path>
+<g filter="url(#wcN)" fill="url(#gG)"><circle cx="80" cy="66" r="6.4"></circle><circle cx="92" cy="66" r="6.4"></circle><circle cx="74" cy="77" r="6.4"></circle><circle cx="86" cy="77" r="6.4"></circle><circle cx="98" cy="77" r="6.4"></circle><circle cx="80" cy="88" r="6.4"></circle><circle cx="92" cy="88" r="6.4"></circle><circle cx="86" cy="99" r="6.4"></circle></g>
+<g fill="none" stroke="#4A3363" stroke-opacity=".45" stroke-width=".6"><circle cx="80" cy="66" r="6.4"></circle><circle cx="92" cy="66" r="6.4"></circle><circle cx="74" cy="77" r="6.4"></circle><circle cx="86" cy="77" r="6.4"></circle><circle cx="98" cy="77" r="6.4"></circle><circle cx="80" cy="88" r="6.4"></circle><circle cx="92" cy="88" r="6.4"></circle><circle cx="86" cy="99" r="6.4"></circle></g>
+<path fill="#FBF8F1" fill-opacity=".45" d="M24 10 H62 C64 40 56 58 43 60 C30 58 22 40 24 10 Z"></path>
+<path filter="url(#wcN)" fill="url(#gW)" d="M25.5 30 H60.5 C59 46 53 56 43 57.5 C33 56 27 46 25.5 30 Z"></path>
+<path fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".8" stroke-linecap="round" d="M24 10 H62 C64 40 56 58 43 60 C30 58 22 40 24 10 M43 60 V94"></path>
+<path filter="url(#wcN)" fill="url(#gP)" d="M28 96 C34 92 52 92 58 96 C52 99 34 99 28 96 Z"></path>
+<path d="M29 16 C28 26 29 36 32 44" stroke="#fff" stroke-opacity=".6" stroke-width="1.4" fill="none" stroke-linecap="round"></path>
+</svg>
+</div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Medir un efecto pasado tampoco dice qué conviene hacer hacia adelante. Quería aprender a diseñar y analizar experimentos, pero en estos datos nadie asignó nada al azar. Lo resolví con un experimento <strong>semi-sintético</strong>, lo que significa que combiné datos reales con una parte inventada para ver cómo se comportaría el análisis. Las 10.000 oportunidades de exportación (salidas de la red de productos), sus características y lo que pasó con el grupo que no recibió apoyo son reales; lo que inventé fue el efecto de cada apoyo, justamente para comprobar si mi análisis era capaz de encontrarlo.</p>
+<p class="rv">El escenario: una agencia de promoción prueba tres tipos de apoyo contra un grupo sin apoyo: una alerta informativa, una rueda de negocios y una rueda de negocios con misión comercial. Antes de mirar cualquier resultado dejé fijo todo el diseño. Tenía dudas sobre qué sortear: cada combinación de producto y país, o cada producto completo. Elegí el producto, porque una campaña de vino en Japón llega a los mismos exportadores que venden vino en Corea, y sortear por combinación habría contaminado al grupo de comparación. El costo fue necesitar un tercio más de muestra.</p>
+<p class="rv">Antes de usar el análisis lo puse a prueba con tests A/A, que comparan dos grupos sin ningún tratamiento, donde no debería aparecer diferencia. Ahí salieron los errores típicos: tratar cada combinación como independiente daba 9% de falsos positivos (diferencias que aparecen aunque no existan), en vez del 5% esperado, y revisar el resultado cada mes lo subía a 17%. Los corregí de dos formas. Primero, con errores agrupados por producto (tratar como un solo bloque las combinaciones de un mismo producto, porque no son independientes). Segundo, con fronteras de O’Brien–Fleming (un método que fija umbrales más exigentes en las primeras revisiones, para poder mirar los resultados por etapas sin inflar los falsos positivos).</p>
+</div>
+<figure class="plate rv">
+<div class="plate-box"><div class="plate-wash" aria-hidden="true"><svg viewBox="0 0 400 260" preserveAspectRatio="none" focusable="false" style="opacity: 0.8"><path filter="url(#wcA)" fill="url(#gM)" d="M30 140 C20 70 90 20 200 22 C310 24 386 60 380 132 C374 204 300 246 196 240 C100 236 40 210 30 140 Z"></path></svg></div>
+<a class="plate-card" href="img/experimento-resultados.webp" target="_blank" rel="noopener" title="Abrir en tamaño completo"><img src="img/experimento-resultados.webp" width="1400" height="665" loading="lazy" decoding="async" alt="Efecto estimado de tres apoyos sobre la probabilidad de concretar una exportación, con sus rangos de confianza, sin ajuste y con CUPED. La alerta informativa no se distingue de cero; la rueda de negocios muestra cerca de +38% con CUPED y la rueda con misión comercial cerca de +43%."></a></div>
+<figcaption class="cap">Efecto estimado de cada apoyo sobre la probabilidad de concretar una exportación, comparado con el grupo sin apoyo, antes y después de ajustar con CUPED. El efecto de los apoyos es simulado. <span class="fig-src">Fuente: <a href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile/blob/main/notebooks/08_experimento_ab.ipynb" target="_blank" rel="noopener">Notebook 8 Experimento A/B</a></span></figcaption>
+</figure>
+<div class="prose">
+<p class="rv">En el análisis final usé CUPED, una técnica que aprovecha datos previos al experimento para reducir el ruido. Corrigió un desequilibrio que se había dado por azar y que inflaba uno de los efectos: lo bajó de +48% a +38%, cuando el efecto que yo había simulado era +30%. Al repetir el experimento completo 500 veces, el análisis recuperó los efectos sin desviarse, y sus rangos de confianza contuvieron el valor real cerca del 95% de las veces.</p>
+</div>
+</div>
+</section>
+
+<!-- 09 · Conclusiones -->
+<section class="ch" id="conclusiones" aria-labelledby="h-conclusiones">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">09 · Conclusiones</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-conclusiones">En <em>pocas palabras</em></h2>
+</div>
+</div>
+<ol class="qs">
+<li class="rv"><p>El crecimiento de las exportaciones en 2026 (+26%) se explica por precios más altos de las materias primas, no porque Chile haya vendido más.</p></li>
+<li class="rv"><p>Las exportaciones chilenas dependen de pocos productos y pocos mercados: 27 productos explican el 80% del valor y China recibe el 37%.</p></li>
+<li class="rv"><p>Una red construida solo a partir de qué productos exportan las mismas empresas revela grupos productivos con sentido y ayuda a anticipar nuevos mercados.</p></li>
+<li class="rv"><p>El modelo de pronóstico superó a todas las referencias simples en 2026, y lo que más pesó fue cómo planteé el problema, no el ajuste fino.</p></li>
+<li class="rv"><p>Un sistema de alertas calibrado en un período tranquilo detecta cambios reales sin falsas alarmas y ayuda a distinguir cuándo hay que reentrenar un modelo y cuándo no.</p></li>
+<li class="rv"><p>Un arancel del 10% que pagan casi todos los competidores apenas se nota; uno del 50% sobre un producto específico hace desaparecer el flujo.</p></li>
+<li class="rv"><p>En un experimento como el que diseñé, sortear por producto, agrupar los errores y mirar el resultado una sola vez son condiciones necesarias para no llenarse de falsos positivos.</p></li>
+</ol>
+</section>
+
+<!-- 10 · Aprendizajes -->
+<section class="ch" id="aprendizajes" aria-labelledby="h-aprendizajes">
+<div class="hd">
+<div>
+<p class="meta ch-n rv">10 · Cierre</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-aprendizajes">Aprendizajes</h2>
+</div>
+<div class="deco rvg" aria-hidden="true" style="--dw: 150px; --ar: 1.4">
+<div class="dk fade" style="left: 0; top: 6%; width: 58%; animation-delay: .3s"><div class="glide"><svg viewBox="0 0 80 50" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path class="wingL" fill="url(#gP)" d="M40 26 C32 14 20 8 6 10 C18 14 26 20 34 28 Z"></path>
+<path class="wingR" fill="url(#gP)" d="M44 26 C50 14 62 8 76 6 C66 14 56 22 48 28 Z"></path>
+<path fill="url(#gP)" d="M28 28 C36 23 46 23 54 27 C46 31 36 32 28 28 Z"></path>
+<path fill="url(#gV)" d="M30 28 L14 35 L22 28.5 L15 22 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M28 28 C36 23 46 23 54 27"></path>
+<path class="wingL" d="M40 26 C32 14 20 8 6 10"></path>
+<path class="wingR" d="M44 26 C50 14 62 8 76 6"></path>
+</g>
+<circle cx="50.5" cy="26" r=".8" fill="#1B1E23"></circle>
+</svg></div></div>
+<div class="dk fade" style="left: 58%; top: 34%; width: 34%; animation-delay: .6s"><div class="glide g2"><svg viewBox="0 0 80 50" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path class="wingL" fill="url(#gP)" d="M40 26 C32 14 20 8 6 10 C18 14 26 20 34 28 Z"></path>
+<path class="wingR" fill="url(#gP)" d="M44 26 C50 14 62 8 76 6 C66 14 56 22 48 28 Z"></path>
+<path fill="url(#gP)" d="M28 28 C36 23 46 23 54 27 C46 31 36 32 28 28 Z"></path>
+<path fill="url(#gV)" d="M30 28 L14 35 L22 28.5 L15 22 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M28 28 C36 23 46 23 54 27"></path>
+<path class="wingL" d="M40 26 C32 14 20 8 6 10"></path>
+<path class="wingR" d="M44 26 C50 14 62 8 76 6"></path>
+</g>
+<circle cx="50.5" cy="26" r=".8" fill="#1B1E23"></circle>
+</svg></div></div>
+<div class="dk fade" style="left: 30%; top: 62%; width: 22%; animation-delay: .9s"><div class="glide g3"><svg viewBox="0 0 80 50" focusable="false" style="opacity: 0.85">
+<g filter="url(#wcN)">
+<path class="wingL" fill="url(#gP)" d="M40 26 C32 14 20 8 6 10 C18 14 26 20 34 28 Z"></path>
+<path class="wingR" fill="url(#gP)" d="M44 26 C50 14 62 8 76 6 C66 14 56 22 48 28 Z"></path>
+<path fill="url(#gP)" d="M28 28 C36 23 46 23 54 27 C46 31 36 32 28 28 Z"></path>
+<path fill="url(#gV)" d="M30 28 L14 35 L22 28.5 L15 22 Z"></path>
+</g>
+<g fill="none" stroke="#28425F" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round">
+<path d="M28 28 C36 23 46 23 54 27"></path>
+<path class="wingL" d="M40 26 C32 14 20 8 6 10"></path>
+<path class="wingR" d="M44 26 C50 14 62 8 76 6"></path>
+</g>
+<circle cx="50.5" cy="26" r=".8" fill="#1B1E23"></circle>
+</svg></div></div>
+</div>
+</div>
+<div class="prose">
+<p class="rv">Mi idea con este proyecto no era construir un producto listo para usar, sino ponerme a prueba como Data Scientist con datos reales, de principio a fin. Esto es lo que más me llevo:</p>
+</div>
+<ul class="learn">
+<li class="rv"><p><strong>Los datos reales no son lo que dice su documentación.</strong> Archivos de descripción duplicados, números de empresa que cambiaban cada mes, totales repetidos en cada fila: cada supuesto razonable había que comprobarlo antes de construir algo encima.</p></li>
+<li class="rv"><p><strong>Limpiar también es analizar.</strong> Contar cada dato que no se podía leer, comparar dos herramientas que no coincidían o reconstruir un valor en vez de inventarlo me enseñó tanto sobre el comercio chileno como cualquier gráfico.</p></li>
+<li class="rv"><p><strong>Las decisiones con más impacto no fueron de algoritmo, sino de cómo planteé cada problema.</strong> Separar flujos regulares de esporádicos, elegir en qué escala trabajar o qué error minimizar movió los resultados mucho más que afinar parámetros, y compararme siempre con referencias simples me mantuvo con los pies en la tierra.</p></li>
+<li class="rv"><p><strong>Una conclusión no está lista hasta contrastarla con la evidencia.</strong> Las cifras del Banco Central, el período de control, las pruebas automáticas y el placebo me corrigieron más de una vez. También aprendí a reportar un resultado nulo con la misma seriedad que uno positivo, y a no confundir predecir algo con medir su impacto.</p></li>
+</ul>
+<h3 class="mini-t rv">Herramientas</h3>
+<ul class="chips rv">
+<li>Python 3.13</li><li>pandas</li><li>NumPy</li><li>PyArrow · Parquet</li><li>LightGBM</li><li>scikit-learn</li><li>SciPy</li><li>pyfixest</li><li>NetworkX</li><li>Matplotlib</li><li>Jupyter</li><li>pytest</li><li>requests · API CKAN</li><li>pypdf</li>
+</ul>
+<div class="p-links rv">
+<a class="sub-btn" href="https://github.com/Bastian-Olea-Diaz/analisis_comercio_chile" target="_blank" rel="noopener"><svg class="sub-btn-bg" viewBox="0 0 216 52" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsV)" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path><path fill="none" stroke="#2F6B66" stroke-opacity=".35" stroke-width=".8" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path></svg><span>Ver el repositorio en GitHub</span><svg class="sub-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 8H13M9 4L13 8L9 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+<a class="sub-btn" href="../"><svg class="sub-btn-bg" viewBox="0 0 216 52" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path filter="url(#wcN)" fill="url(#gsO)" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path><path fill="none" stroke="#8F5E1E" stroke-opacity=".35" stroke-width=".8" d="M8 10 C40 2 120 4 170 6 C200 7 214 14 212 26 C214 40 200 46 168 46 C120 48 50 50 14 44 C4 40 2 30 4 22 C4 16 5 12 8 10 Z"></path></svg><span>Volver al inicio</span><svg class="sub-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 8H13M9 4L13 8L9 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+</div>
+<p class="note rv">Datos publicados por el Servicio Nacional de Aduanas de Chile en el Portal de Datos Abiertos del Gobierno de Chile, bajo licencia Creative Commons Atribución. Todas las figuras provienen de los notebooks del proyecto.</p>
+</section>
+
+</div>
+</div>
+</div>
+</main>
+</body>
+</html>
