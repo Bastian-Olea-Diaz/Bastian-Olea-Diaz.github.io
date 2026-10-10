@@ -10,11 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&amp;family=Geist+Mono:wght@400;500&amp;family=Instrument+Serif:ital@0;1&amp;display=swap">
-<link rel="stylesheet" href="../css/style.css?v=21564027">
-<link rel="stylesheet" href="../css/proyecto.css?v=320dd128">
+<link rel="stylesheet" href="../css/style.css?v=4e173239">
+<link rel="stylesheet" href="../css/proyecto.css?v=9da1a446">
 <script>document.documentElement.classList.add('js')</script>
-<script src="../js/main.js?v=d65a6def" defer></script>
+<script src="../js/main.js?v=3fc2208e" defer></script>
 <script src="../js/relato.js?v=7da70a27" defer></script>
+<script src="../js/en-vivo.js?v=34e0a29a" defer></script>
 </head>
 <body>
 <main class="page story">
@@ -537,8 +538,9 @@
 <li><a href="#pregunta-6" data-label="08 · Pregunta 6 · Experimento"><span>P6</span><em>Experimento</em></a></li>
 </ol>
 </li>
-<li><a href="#conclusiones" data-label="09 · Conclusiones"><span>09</span><em>Conclusiones</em></a></li>
-<li><a href="#aprendizajes" data-label="10 · Aprendizajes"><span>10</span><em>Aprendizajes</em></a></li>
+<li><a href="#en-vivo" data-label="09 · En vivo"><span>09</span><em>En vivo</em></a></li>
+<li><a href="#conclusiones" data-label="10 · Conclusiones"><span>10</span><em>Conclusiones</em></a></li>
+<li><a href="#aprendizajes" data-label="11 · Aprendizajes"><span>11</span><em>Aprendizajes</em></a></li>
 </ol>
 </div>
 </nav>
@@ -1144,11 +1146,31 @@
 </div>
 </section>
 
-<!-- 09 · Conclusiones -->
+<!-- 09 · En vivo -->
+<section class="ch" id="en-vivo" aria-labelledby="h-en-vivo">
+<div class="hd">
+<div>
+<p class="meta ch-n rv" data-i18n="live.n">09 · En vivo</p>
+<h2 class="ch-t rv" style="animation-delay: .08s" id="h-en-vivo"><span data-i18n="live.h1">El modelo, </span><em data-i18n="live.h2">funcionando solo</em></h2>
+</div>
+</div>
+<div class="prose">
+<p class="rv" data-i18n="live.p1">Todo lo anterior vivía en notebooks: el modelo solo pronosticaba cuando yo lo ejecutaba. Por eso construí una segunda parte del proyecto para que funcione solo. Cada mes, cuando Aduanas publica un archivo nuevo, un proceso automático lo descarga, revisa que los datos vengan bien, compara lo que el modelo había pronosticado con lo que realmente pasó, vuelve a entrenarlo y publica pronósticos nuevos.</p>
+<p class="rv" data-i18n="live.p2">Lo que ves abajo se actualiza solo con cada publicación de Aduanas, sin que yo lo edite. Si el modelo se equivoca, también se va a ver aquí.</p>
+</div>
+<blockquote class="thought rv" data-i18n="live.thought">Quería que el historial de aciertos no se pudiera retocar: cada pronóstico queda registrado antes de conocer el resultado.</blockquote>
+<div class="viz lv rv" id="en-vivo-app" aria-live="polite" aria-busy="true">
+<p class="lv-lead" data-i18n="live.loading">Cargando los datos en vivo…</p>
+<noscript><p class="lv-lead">Esta sección necesita JavaScript para mostrar los datos en vivo.</p></noscript>
+</div>
+<p class="cap"><span class="fig-src"><span data-i18n="live.src">Fuente:</span> <a href="https://github.com/Bastian-Olea-Diaz/pronostico_comercio_chile" target="_blank" rel="noopener">pronostico_comercio_chile</a> <span data-i18n="live.src2">· se actualiza automáticamente con GitHub Actions</span></span></p>
+</section>
+
+<!-- 10 · Conclusiones -->
 <section class="ch" id="conclusiones" aria-labelledby="h-conclusiones">
 <div class="hd">
 <div>
-<p class="meta ch-n rv">09 · Conclusiones</p>
+<p class="meta ch-n rv">10 · Conclusiones</p>
 <h2 class="ch-t rv" style="animation-delay: .08s" id="h-conclusiones">En <em>pocas palabras</em></h2>
 </div>
 </div>
@@ -1167,7 +1189,7 @@
 <section class="ch" id="aprendizajes" aria-labelledby="h-aprendizajes">
 <div class="hd">
 <div>
-<p class="meta ch-n rv">10 · Cierre</p>
+<p class="meta ch-n rv">11 · Cierre</p>
 <h2 class="ch-t rv" style="animation-delay: .08s" id="h-aprendizajes">Aprendizajes</h2>
 </div>
 <div class="deco rvg" aria-hidden="true" style="--dw: 150px; --ar: 1.4">

@@ -419,3 +419,19 @@ a{color:#24405F}a:hover{color:#1B1E23}
 .hb-wash,.hb-gB .hb-wash{left:-6%;right:-6%;top:-6%;bottom:-6%}
 }
 
+
+/* ---- Indicador "En vivo" de la portada (js/en-vivo.js) ---- */
+.live{display:inline-flex;align-items:center;gap:10px;max-width:35rem;margin-top:1.4em;padding:8px 14px 8px 12px;border:1px solid rgba(27,30,35,.14);border-radius:999px;background:rgba(251,248,241,.72);color:#1B1E23;font-size:14px;line-height:1.35;text-decoration:none;transition:border-color .4s ease,background .4s ease}
+.live[hidden]{display:none}
+.live:hover{border-color:rgba(176,122,46,.7);background:#FBF8F1}
+.live:focus-visible{outline:1px solid #24405F;outline-offset:4px}
+.live-dot{flex:none;width:8px;height:8px;border-radius:50%;background:#2F6B66;animation:live-pulse 2.6s ease-out infinite}
+.live[data-estado="aviso"] .live-dot{background:#B07A2E}
+.live[data-estado="alerta"] .live-dot{background:#A3433A}
+.live-k{flex:none;color:#1B1E23}
+.live-t{color:#3F444B}
+.live-arrow{flex:none;color:#24405F;transition:transform .4s ease}
+.live:hover .live-arrow{transform:translateX(3px)}
+@keyframes live-pulse{0%{box-shadow:0 0 0 0 rgba(47,107,102,.45)}70%{box-shadow:0 0 0 8px rgba(47,107,102,0)}100%{box-shadow:0 0 0 0 rgba(47,107,102,0)}}
+@media (max-width:640px){.live{font-size:13px;border-radius:14px;align-items:flex-start}.live-dot{margin-top:5px}}
+@media (prefers-reduced-motion:reduce){.live-dot{animation:none}.live,.live-arrow{transition:none}}
