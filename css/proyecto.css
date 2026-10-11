@@ -306,6 +306,11 @@ a.plate-card:hover{transform:translate3d(0,-4px,0);box-shadow:0 34px 60px -40px 
 .lv-track tr[data-gana="false"] td:nth-child(4){color:#A3433A}
 .lv-track tr td:nth-child(4)::after{content:" ✓";font-size:11px}
 .lv-track tr[data-gana="false"] td:nth-child(4)::after{content:" ✗"}
+.lv-track tr[data-dentro="true"] td:nth-child(6){color:#2F6B66}
+.lv-track tr[data-dentro="false"] td:nth-child(6){color:#A3433A}
+.lv-range-note{margin:14px 0 26px!important;max-width:68ch}
+.lv-track td:not(:first-child){white-space:nowrap}
+.lv-lead+.lv-lead{margin-top:6px}
 .lv-links{display:flex;flex-wrap:wrap;gap:8px 22px;margin:28px 0 0;padding:0;list-style:none;font-size:14.5px}
 .lv-links a{color:#24405F;text-decoration:underline;text-decoration-color:rgba(176,122,46,.55);text-underline-offset:3px}
 .lv-links a:hover{color:#1B1E23;text-decoration-color:#B07A2E}

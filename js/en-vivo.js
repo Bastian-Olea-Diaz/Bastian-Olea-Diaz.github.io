@@ -25,6 +25,13 @@
       observed: 'Observado',
       forecast: 'Pronóstico',
       bandLabel: 'Error típico',
+      range80: 'Rango del 80%: US$ {a} a {b} millones',
+      range80Label: 'Rango del 80%',
+      range80Note: 'El rango se calcula con los errores reales del modelo en los últimos 12 meses, para que el valor final caiga dentro 8 de cada 10 veces. Cada mes se comprueba si lo hizo.',
+      coverage: 'El valor real cayó dentro del rango en {k} de {n} pronósticos evaluados en vivo (a 1, 2 y 3 meses).',
+      inRange: 'Dentro del rango',
+      yes: 'Sí',
+      no: 'No',
       chartTitle: '{f}: últimos 24 meses y pronóstico a 3 meses, en millones de dólares',
       chartSummary: '{f} observadas hasta {m1} y pronóstico para {m2}, {m3} y {m4}.',
       trackTitle: '¿Acertó el modelo?',
@@ -57,6 +64,13 @@
       observed: 'Observed',
       forecast: 'Forecast',
       bandLabel: 'Typical error',
+      range80: '80% range: US$ {a} to {b} million',
+      range80Label: '80% range',
+      range80Note: 'The range is built from the model\'s actual errors over the last 12 months, so that the final value falls inside 8 times out of 10. Each month it is checked whether it did.',
+      coverage: 'The actual value fell inside the range in {k} of {n} forecasts evaluated live (1, 2 and 3 months ahead).',
+      inRange: 'Inside the range',
+      yes: 'Yes',
+      no: 'No',
       chartTitle: '{f}: last 24 months and 3-month forecast, in millions of dollars',
       chartSummary: '{f} observed through {m1} and forecast for {m2}, {m3} and {m4}.',
       trackTitle: 'Did the model get it right?',
@@ -89,6 +103,13 @@
       observed: 'Observert',
       forecast: 'Prognose',
       bandLabel: 'Typisk feil',
+      range80: '80 % spenn: {a} til {b} millioner US$',
+      range80Label: '80 % spenn',
+      range80Note: 'Spennet beregnes ut fra modellens faktiske feil de siste 12 månedene, slik at den endelige verdien havner innenfor 8 av 10 ganger. Hver måned kontrolleres det om den gjorde det.',
+      coverage: 'Den faktiske verdien havnet innenfor spennet i {k} av {n} prognoser evaluert direkte (1, 2 og 3 måneder fram).',
+      inRange: 'Innenfor spennet',
+      yes: 'Ja',
+      no: 'Nei',
       chartTitle: '{f}: siste 24 måneder og prognose for 3 måneder, i millioner dollar',
       chartSummary: '{f} observert til og med {m1} og prognose for {m2}, {m3} og {m4}.',
       trackTitle: 'Traff modellen?',
@@ -155,6 +176,22 @@
     return n;
   }
 
+  // Rango de un pronóstico. Desde la versión 2 del pipeline, resumen.json trae un intervalo conformal del 80%
+  // (inferior y superior). Las releases anteriores solo traen error_tipico: se usa como respaldo, con su
+  // etiqueta original, para no mostrar como intervalo algo que no lo es.
+  function hasInterval(f) {
+    return f.pronostico.every(function (d) { return d.inferior != null && d.superior != null; });
+  }
+  function range(f, d) {
+    if (hasInterval(f)) return { lo: d.inferior, hi: d.superior };
+    var err = f.error_tipico || 0;
+    return err ? { lo: d.valor * (1 - err), hi: d.valor * (1 + err) } : null;
+  }
+  function rangeText(f, d) {
+    var r = range(f, d);
+    return r ? fill(hasInterval(f) ? s().range80 : s().band, { a: millions(r.lo), b: millions(r.hi) }) : null;
+  }
+
   // ------------------------------------------------------------------ portada
   function renderPill() {
     if (!pill || !data) return;
@@ -168,12 +205,12 @@
 
   // ------------------------------------------------------------------ capítulo
   function chart(f, width) {
-    var hist = f.historia, fc = f.pronostico, err = f.error_tipico || 0;
+    var hist = f.historia, fc = f.pronostico, ranges = fc.map(function (d) { return range(f, d); });
     // se dibuja al ancho real: los textos conservan su tamaño en pantallas chicas
     var W = Math.max(280, Math.round(width)), H = W < 520 ? 230 : 300, L = 50, R = 12, T = 14, B = 30;
     var months = hist.map(function (d) { return d.mes; }).concat(fc.map(function (d) { return d.mes; }));
-    var values = hist.map(function (d) { return d.valor; }).concat(fc.map(function (d) { return d.valor * (1 + err); }),
-      fc.map(function (d) { return d.valor * (1 - err); }));
+    var values = hist.map(function (d) { return d.valor; }).concat(fc.map(function (d) { return d.valor; }));
+    ranges.forEach(function (r) { if (r) values.push(r.lo, r.hi); });
     var lo = Math.min.apply(null, values), hi = Math.max.apply(null, values), pad = (hi - lo) * 0.12;
     lo = Math.max(0, lo - pad); hi = hi + pad;
     function x(i) { return L + i * (W - L - R) / (months.length - 1); }
@@ -202,10 +239,10 @@
       g.appendChild(t);
     });
 
-    // banda de error típico del pronóstico, anclada en el último valor observado
-    if (err) {
+    // rango del pronóstico, anclado en el último valor observado
+    if (ranges.every(Boolean)) {
       var up = [[x(n - 1), y(hist[n - 1].valor)]], down = [];
-      fc.forEach(function (d, i) { up.push([x(n + i), y(d.valor * (1 + err))]); down.unshift([x(n + i), y(d.valor * (1 - err))]); });
+      ranges.forEach(function (r, i) { up.push([x(n + i), y(r.hi)]); down.unshift([x(n + i), y(r.lo)]); });
       var pts = up.concat(down, [[x(n - 1), y(hist[n - 1].valor)]]).map(function (p) { return p.join(','); }).join(' ');
       g.appendChild(svg('polygon', { points: pts, 'class': 'lv-band' }));
     }
@@ -230,8 +267,8 @@
       tip.innerHTML = '';
       tip.appendChild(el('strong', { text: cap(month(d.mes)) }));
       tip.appendChild(el('span', { text: (isFc ? s().forecast : s().observed) + ': ' + fill(s().usdMShort, { v: millions(d.valor) }) }));
-      if (isFc && err) tip.appendChild(el('span', { 'class': 'lv-tip-sub', text: fill(s().band, {
-        a: millions(d.valor * (1 - err)), b: millions(d.valor * (1 + err)) }) }));
+      var rt = isFc ? rangeText(f, d) : null;
+      if (rt) tip.appendChild(el('span', { 'class': 'lv-tip-sub', text: rt }));
       tip.hidden = false;
       tip.style.left = (x(i) / W * 100) + '%';
       tip.style.top = (y(d.valor) / H * 100) + '%';
@@ -242,7 +279,8 @@
 
     var legend = el('ul', { 'class': 'lv-legend' }, [
       el('li', { 'class': 'k-obs', text: s().observed }), el('li', { 'class': 'k-fc', text: s().forecast }),
-      err ? el('li', { 'class': 'k-band', text: s().bandLabel + ' ±' + pct(err) }) : null
+      hasInterval(f) ? el('li', { 'class': 'k-band', text: s().range80Label })
+        : f.error_tipico ? el('li', { 'class': 'k-band', text: s().bandLabel + ' ±' + pct(f.error_tipico) }) : null
     ]);
     return el('figure', { 'class': 'lv-fig' }, [legend, box]);
   }
@@ -283,14 +321,15 @@
     app.appendChild(tabs);
 
     // los tres próximos meses
-    var err = f.error_tipico;
     app.appendChild(el('div', { 'class': 'lv-stats' }, f.pronostico.map(function (d) {
+      var rt = rangeText(f, d);
       return el('div', { 'class': 'lv-stat' }, [
         el('p', { 'class': 'meta', text: fill(S.forecastFor, { m: month(d.mes) }) }),
         el('p', { 'class': 'lv-num', text: fill(S.usdM, { v: millions(d.valor) }) }),
-        err ? el('p', { 'class': 'lv-range', text: fill(S.band, { a: millions(d.valor * (1 - err)), b: millions(d.valor * (1 + err)) }) }) : null
+        rt ? el('p', { 'class': 'lv-range', text: rt }) : null
       ]);
     })));
+    if (hasInterval(f)) app.appendChild(el('p', { 'class': 'lv-note lv-range-note', text: S.range80Note }));
 
     app.appendChild(el('p', { 'class': 'lv-chart-t', text: fill(S.chartTitle, { f: S.flows[flow] }) }));
     app.appendChild(chart(f, chartWidth()));
@@ -302,15 +341,22 @@
     var track = el('div', { 'class': 'lv-block' }, [el('h3', { 'class': 'lv-h', text: S.trackTitle })]);
     if (f.aciertos.length) {
       track.appendChild(el('p', { 'class': 'lv-lead', text: fill(S.track, { k: r.meses_gana, n: r.meses_evaluados }) }));
+      var cov = r.cobertura;
+      if (cov && cov.evaluados) track.appendChild(el('p', { 'class': 'lv-lead', text: fill(S.coverage, { k: cov.dentro, n: cov.evaluados }) }));
+      // la columna "dentro del rango" aparece solo cuando hay meses con intervalo publicado
+      var withRange = f.aciertos.some(function (a) { return a.dentro != null; });
       var rows = f.aciertos.slice().reverse().map(function (a) {
-        return [cap(month(a.mes)), fill(S.usdMShort, { v: millions(a.pronosticado) }), fill(S.usdMShort, { v: millions(a.observado) }),
+        var row = [cap(month(a.mes)), fill(S.usdMShort, { v: millions(a.pronosticado) }), fill(S.usdMShort, { v: millions(a.observado) }),
           pct(a.error_modelo), pct(a.error_media_movil)];
+        if (withRange) row.push(a.dentro == null ? '—' : a.dentro ? S.yes : S.no);
+        return row;
       });
-      var t = table(S.trackCols, rows, 'lv-table lv-track');
+      var t = table(withRange ? S.trackCols.concat([S.inRange]) : S.trackCols, rows, 'lv-table lv-track');
       f.aciertos.slice().reverse().forEach(function (a, i) {
         var row = t.tBodies[0].rows[i];
         row.setAttribute('data-gana', String(a.gana));
         row.cells[3].setAttribute('title', a.gana ? S.better : S.worse);
+        if (withRange && a.dentro != null) row.setAttribute('data-dentro', String(a.dentro));
       });
       track.appendChild(t);
     } else {
